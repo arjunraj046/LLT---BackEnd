@@ -100,23 +100,7 @@ const rangeSetup = async (req, res) => {
   try {
     const { startRange, endRange, color } = req.body;
 
-    const rangeList = await rangeListDB();
-    
-    let flag = false;
-    
-    rangeList.map(async (item) => {
-    
-      if (startRange >= item.startRange && endRange <= item.endRange && color == item.color) {
-    
-        flag = true;
-    
-        return true;
-    
-      }
-    
-    });
-
-    const range = 1;
+    const range = await rangeSetupDB(startRange, endRange, color);
 
     res.status(200).json({ status: "success", range });
   } catch (error) {
