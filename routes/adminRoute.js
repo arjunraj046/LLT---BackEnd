@@ -1,6 +1,17 @@
 const express = require("express");
 const adminRoute = express.Router();
-const { agentRegister, agentList, agentDetails, editAgent,editPasswordAgent, agentStatusChange, listEntity, rangeSetup, rangeList } = require("../controllers/adminController");
+const {
+  agentRegister,
+  agentList,
+  agentDetails,
+  editAgent,
+  editPasswordAgent,
+  agentStatusChange,
+  listEntity,
+  listEntitySearch,
+  rangeSetup,
+  rangeList,
+} = require("../controllers/adminController");
 const { adminAuthMiddleware } = require("../middleware/authMiddleware");
 
 adminRoute.get("/agent-list/:filter?/:pagenumber?", agentList);
@@ -13,6 +24,8 @@ adminRoute.post("/change-agentpassword", editPasswordAgent);
 adminRoute.get("/agent-status-chnage/:id", agentStatusChange);
 
 adminRoute.get("/list-entity", listEntity);
+
+adminRoute.get("/search-list-entity", listEntitySearch);
 
 adminRoute.post("/enitity-rang", rangeSetup);
 adminRoute.get("/enitity-rang-list", rangeList);

@@ -56,7 +56,7 @@ const agentPasswordChangeDB = async (_id, password) => {
     console.log("agentPasswordChangeDB");
     const updateUserinfo = { password };
     const Agent = await User.findByIdAndUpdate(_id, updateUserinfo, { new: true });
-    console.log("DB",Agent);
+    console.log("DB", Agent);
     return Agent;
   } catch (error) {
     console.error("Error editing agent passoword:", error);
@@ -111,9 +111,94 @@ const listEntityDB = async () => {
           status: "$data.status",
         },
       },
+      {
+        $group: {
+          _id: null,
+          totalCount: {
+            $sum: "$count",
+          },
+          data: {
+            $push: "$$ROOT",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          totalCount: 1,
+          data: 1,
+        },
+      },
     ]);
 
     if (!list) return null;
+
+    return list;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const listEntitySearchDB = async (token) => {
+  try {
+    let tokenNumber = parseInt(token);
+    const list = await UserData.aggregate([
+      {
+        $match: {
+          tokenNumber: tokenNumber,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "data",
+        },
+      },
+      {
+        $unwind: {
+          path: "$data",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          userId: 1,
+          tokenNumber: 1,
+          count: 1,
+          date: 1,
+          name: "$data.name",
+          userName: "$data.userName",
+          contactNumber: "$data.contactNumber",
+          email: "$data.email",
+          userRole: "$data.userRole",
+          status: "$data.status",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalCount: {
+            $sum: "$count",
+          },
+          data: {
+            $push: "$$ROOT",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          totalCount: 1,
+          data: 1,
+        },
+      },
+    ]);
+
+    console.log(list);
+    if (!list) return null;
+
     return list;
   } catch (error) {
     throw error;
@@ -154,4 +239,15 @@ const agentDataDB = async (id) => {
   }
 };
 
-module.exports = { agentRegisterDB, listAgentsDB, agentProfileEditDB, changeAgentStatusDB, agentPasswordChangeDB, listEntityDB, rangeSetupDB, rangeListDB, agentDataDB };
+module.exports = {
+  agentRegisterDB,
+  listAgentsDB,
+  agentProfileEditDB,
+  changeAgentStatusDB,
+  agentPasswordChangeDB,
+  listEntityDB,
+  listEntitySearchDB,
+  rangeSetupDB,
+  rangeListDB,
+  agentDataDB,
+};

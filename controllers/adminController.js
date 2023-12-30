@@ -5,6 +5,7 @@ const {
   agentPasswordChangeDB,
   changeAgentStatusDB,
   listEntityDB,
+  listEntitySearchDB,
   rangeSetupDB,
   rangeListDB,
   agentDataDB,
@@ -89,8 +90,30 @@ const agentStatusChange = async (req, res) => {
 
 const listEntity = async (req, res) => {
   try {
-    const list = await listEntityDB();
-    res.status(200).json({ status: "success", list });
+    const response = await listEntityDB();
+
+    let totalCount = response.totalCount;
+    let data = response.data;
+
+    console.log("totalCount", totalCount, "data", data);
+    res.status(200).json({ status: "success", list: data, totalCount });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const listEntitySearch = async (req, res) => {
+  try {
+    const { tokenNumber } = req.query;
+    console.log(tokenNumber);
+    const response = await listEntitySearchDB(tokenNumber);
+    console.log("ccccccccccccccccccccc", response);
+    let totalCount = response[0].totalCount;
+    let data = response[0].data;
+
+    console.log();
+    console.log("totalCount", totalCount, "data", data);
+    res.status(200).json({ status: "success", list: data, totalCount });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -99,9 +122,7 @@ const listEntity = async (req, res) => {
 const rangeSetup = async (req, res) => {
   try {
     const { startRange, endRange, color } = req.body;
-
     const range = await rangeSetupDB(startRange, endRange, color);
-
     res.status(200).json({ status: "success", range });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -120,4 +141,4 @@ const rangeList = async (req, res) => {
   }
 };
 
-module.exports = { agentRegister, agentList, agentDetails, editAgent, agentStatusChange, listEntity, rangeSetup, rangeList, editPasswordAgent };
+module.exports = { agentRegister, agentList, agentDetails, editAgent, agentStatusChange, listEntity, listEntitySearch, rangeSetup, rangeList, editPasswordAgent };
