@@ -92,8 +92,8 @@ const listEntity = async (req, res) => {
   try {
     const response = await listEntityDB();
 
-    let totalCount = response.totalCount;
-    let data = response.data;
+    let totalCount = response[0].totalCount;
+    let data = response[0].data;
 
     console.log("totalCount", totalCount, "data", data);
     res.status(200).json({ status: "success", list: data, totalCount: totalCount });
