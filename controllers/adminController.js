@@ -96,7 +96,7 @@ const listEntity = async (req, res) => {
     let data = response.data;
 
     console.log("totalCount", totalCount, "data", data);
-    res.status(200).json({ status: "success", list: data, totalCount });
+    res.status(200).json({ status: "success", list: data, totalCount: totalCount });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -113,7 +113,7 @@ const listEntitySearch = async (req, res) => {
 
     console.log();
     console.log("totalCount", totalCount, "data", data);
-    res.status(200).json({ status: "success", list: data, totalCount });
+    res.status(200).json({ status: "success", list: data, totalCount: totalCount });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
