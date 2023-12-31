@@ -55,6 +55,7 @@ const addagentDataDB = async (id, date, tokenNumber, count) => {
 //     throw error;
 //   }
 // };
+
 const getAgentEntity = async (id) => {
   try {
     console.log("getAgentEntity in db ", id);
@@ -75,4 +76,17 @@ const getAgentEntity = async (id) => {
   }
 };
 
-module.exports = { addagentDataDB, getAgentEntity };
+const deleteAgentEntity = async (id) => {
+  try {
+    console.log("deleteAgentEntity in db ", id);
+    const _id = new mongoose.Types.ObjectId(id);
+    console.log(_id);
+    const deleteItem = await UserData.deleteOne({ _id });
+    return deleteItem;
+  } catch (error) {
+    console.error("Error fetching agent entities:", error);
+    throw error;
+  }
+};
+
+module.exports = { addagentDataDB, getAgentEntity, deleteAgentEntity };

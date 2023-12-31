@@ -1,4 +1,4 @@
-const { addagentDataDB, getAgentEntity } = require("../database/repository/agentRepository");
+const { addagentDataDB, getAgentEntity ,deleteAgentEntity} = require("../database/repository/agentRepository");
 
 // const addEntity = async (req, res) => {
 //   try {
@@ -47,4 +47,17 @@ const listEntity = async (req, res) => {
   }
 };
 
-module.exports = { addEntity, listEntity };
+const deleteEntity = async(req,res)=>{
+  try {
+    console.log("agent", req.body);
+    const { id } = req.body;
+    const result = await deleteAgentEntity(id);
+
+    res.status(200).json({ status: "success" ,result});
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
+module.exports = { addEntity, listEntity,deleteEntity };

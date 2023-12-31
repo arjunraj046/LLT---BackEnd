@@ -28,6 +28,7 @@ adminRoute.get("/list-entity", listEntity);
 adminRoute.get("/search-list-entity", listEntitySearch);
 
 adminRoute.post("/enitity-rang", rangeSetup);
+
 adminRoute.get("/enitity-rang-list", rangeList);
 
 module.exports = adminRoute;
