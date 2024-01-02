@@ -238,6 +238,18 @@ const agentDataDB = async (id) => {
     throw error;
   }
 };
+const deleteAdminEntity = async (id) => {
+  try {
+    console.log("deleteAdminEntity in db ", id);
+    const _id = new mongoose.Types.ObjectId(id);
+    console.log(_id);
+    const deleteItem = await UserData.deleteOne({ _id });
+    return deleteItem;
+  } catch (error) {
+    console.error("Error fetching agent entities:", error);
+    throw error;
+  }
+};
 
 module.exports = {
   agentRegisterDB,
@@ -250,4 +262,5 @@ module.exports = {
   rangeSetupDB,
   rangeListDB,
   agentDataDB,
+  deleteAdminEntity
 };
