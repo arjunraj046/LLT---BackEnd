@@ -12,12 +12,12 @@ const adminRoutes = require('./routes/adminRoute');
 connectDB()
 dotenv.config();
 
-// const corsOptions = {
-//   origin: 'http://localhost:3000', 
-//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-//   credentials: true,
-//   optionsSuccessStatus: 204,
-// };
+const corsOptions = {
+  origin: 'https://13.233.114.61:5000', 
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
 
 // app.use(cors());
 app.use(cors({origin: true, credentials: true}));
