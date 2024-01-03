@@ -12,17 +12,15 @@ const adminRoutes = require('./routes/adminRoute');
 connectDB();
 dotenv.config();
 
-const corsOptions = {
-  origin: 'https://13.233.114.61:5000',
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
-  optionsSuccessStatus: 204,
-};
+// const corsOptions = {
+//   origin: 'https://13.233.114.61:5000',
+//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+//   credentials: true,
+//   optionsSuccessStatus: 204,
+// };
 
 // Enable CORS for all routes
-app.use(cors(corsOptions));
-
-// Enable JSON parsing
+app.use(cors({origin: true, credentials: true}));
 app.use(bodyParser.json());
 
 // Define routes
