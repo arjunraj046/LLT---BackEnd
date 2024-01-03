@@ -76,7 +76,7 @@ const getAgentEntity = async (id) => {
   }
 };
 
-const deleteAgentEntity = async (id) => {
+const deleteEntity = async (id) => {
   try {
     console.log("deleteAgentEntity in db ", id);
     const _id = new mongoose.Types.ObjectId(id);
@@ -89,4 +89,4 @@ const deleteAgentEntity = async (id) => {
   }
 };
 
-module.exports = { addagentDataDB, getAgentEntity, deleteAgentEntity };
+module.exports = { addagentDataDB, getAgentEntity, deleteEntity };

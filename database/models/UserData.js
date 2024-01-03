@@ -5,7 +5,11 @@ const userDataSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
   tokenNumber: { type: Number, required: true },
   count: { type: Number, required: true },
-  date: { type: Date, default: Date.now },
+  date: {
+    type: Date,
+    default: () => new Date().toISOString()
+  }
+  
 });
 
 const UserData = mongoose.model("UserData", userDataSchema);

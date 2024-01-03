@@ -9,6 +9,7 @@ const {
   rangeSetupDB,
   rangeListDB,
   agentDataDB,
+  deleteEntityAdminDB
 } = require("../database/repository/adminRepository");
 const { passwordHashing, passwordComparing } = require("../services/hasinging");
 const { getAgent } = require("../database/repository/authRepository");
@@ -104,20 +105,27 @@ const listEntity = async (req, res) => {
 
 const listEntitySearch = async (req, res) => {
   try {
-    const { tokenNumber } = req.query;
-    console.log(tokenNumber);
-    const response = await listEntitySearchDB(tokenNumber);
-    console.log("ccccccccccccccccccccc", response);
-    let totalCount = response[0].totalCount;
-    let data = response[0].data;
+    const { tokenNumber, dateFilter } = req.query;
 
-    console.log();
-    console.log("totalCount", totalCount, "data", data);
+    console.log("Token Number:", tokenNumber);
+    console.log("Date Filter:", dateFilter);
+
+    // Call the function to fetch data from the database with tokenNumber and dateFilter
+    const response = await listEntitySearchDB(tokenNumber, dateFilter);
+
+    console.log("Response from Database:", response);
+
+    const totalCount = response.totalCount;
+    const data = response.data;
+
+    console.log("Total Count:", totalCount, "Data:", data);
+
     res.status(200).json({ status: "success", list: data, totalCount: totalCount });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 const rangeSetup = async (req, res) => {
   try {
@@ -140,5 +148,15 @@ const rangeList = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+const deleteEntityAdmin = async(req,res)=>{
+  try {
+    console.log("agent", req.body);
+    const { id } = req.body;
+    const result = await deleteEntityAdminDB(id);
 
-module.exports = { agentRegister, agentList, agentDetails, editAgent, agentStatusChange, listEntity, listEntitySearch, rangeSetup, rangeList, editPasswordAgent };
+    res.status(200).json({ status: "success" ,result});
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+module.exports = { agentRegister, agentList, agentDetails, editAgent, agentStatusChange, listEntity, listEntitySearch, rangeSetup, rangeList, editPasswordAgent, deleteEntityAdmin };

@@ -138,15 +138,26 @@ const listEntityDB = async () => {
     throw error;
   }
 };
-
-const listEntitySearchDB = async (token) => {
+const listEntitySearchDB = async (token, dateFilter) => {
   try {
     let tokenNumber = parseInt(token);
-    const list = await UserData.aggregate([
+
+    let matchStage = {};
+
+    if (tokenNumber) {
+      matchStage.tokenNumber = tokenNumber;
+    }
+
+    if (dateFilter) {
+      matchStage.date = {
+        $gte: new Date(dateFilter),
+        $lt: new Date(new Date(dateFilter).setHours(23, 59, 59, 999)),
+      };
+    }
+
+    let aggregatePipeline = [
       {
-        $match: {
-          tokenNumber: tokenNumber,
-        },
+        $match: matchStage,
       },
       {
         $lookup: {
@@ -194,16 +205,40 @@ const listEntitySearchDB = async (token) => {
           data: 1,
         },
       },
-    ]);
+    ];
 
-    console.log(list);
-    if (!list) return null;
+    console.log("Aggregate Pipeline:", JSON.stringify(aggregatePipeline, null, 2));
 
-    return list;
+    const list = await UserData.aggregate(aggregatePipeline);
+
+    console.log("Aggregate Result:", JSON.stringify(list, null, 2));
+
+    if (!list || list.length === 0) {
+      console.error("Error: Aggregate result is undefined or empty");
+      return { totalCount: 0, data: [] };
+    }
+
+    const result = Array.isArray(list) ? list[0] : list;
+
+    if (!result || !result.data) {
+      console.error("Error: Aggregate result has an incorrect structure");
+      console.log("Detailed Error:", JSON.stringify(result, null, 2));
+      return { totalCount: 0, data: [] };
+    }
+
+    const { totalCount, data } = result;
+
+    console.log("Total Count:", totalCount, "Data:", JSON.stringify(data, null, 2));
+
+    return { totalCount, data };
   } catch (error) {
+    console.error("Error in listEntitySearchDB:", error);
     throw error;
   }
 };
+
+
+
 
 const rangeSetupDB = async (startRange, endRange, color) => {
   try {
@@ -238,7 +273,7 @@ const agentDataDB = async (id) => {
     throw error;
   }
 };
-const deleteAdminEntity = async (id) => {
+const deleteEntityAdminDB = async (id) => {
   try {
     console.log("deleteAdminEntity in db ", id);
     const _id = new mongoose.Types.ObjectId(id);
@@ -262,5 +297,5 @@ module.exports = {
   rangeSetupDB,
   rangeListDB,
   agentDataDB,
-  deleteAdminEntity
+  deleteEntityAdminDB
 };

@@ -11,6 +11,7 @@ const {
   listEntitySearch,
   rangeSetup,
   rangeList,
+  deleteEntityAdmin,
 } = require("../controllers/adminController");
 const { adminAuthMiddleware } = require("../middleware/authMiddleware");
 
@@ -30,5 +31,7 @@ adminRoute.get("/search-list-entity", listEntitySearch);
 adminRoute.post("/enitity-rang", rangeSetup);
 
 adminRoute.get("/enitity-rang-list", rangeList);
+
+adminRoute.post("/delete-entity-admin", deleteEntityAdmin);
 
 module.exports = adminRoute;
