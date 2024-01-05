@@ -5,7 +5,7 @@ const {
   agentPasswordChangeDB,
   changeAgentStatusDB,
   listEntityDB,
-  listEntitySearchDB,
+  // listEntitySearchDB,
   rangeSetupDB,
   rangeListDB,
   agentDataDB,
@@ -111,16 +111,27 @@ const listEntitySearch = async (req, res) => {
     console.log("Date Filter:", dateFilter);
 
     // Call the function to fetch data from the database with tokenNumber and dateFilter
-    const response = await listEntitySearchDB(tokenNumber, dateFilter);
+    const response = await listEntityDB(tokenNumber, dateFilter);
 
-    console.log("Response from Database:", response);
+    if (response && response.length > 0) {
+      const totalCount = response[0].totalCount;
+      const data = response[0].data;
 
-    const totalCount = response.totalCount;
-    const data = response.data;
+      console.log("Total Count:", totalCount, "Data:", data);
 
-    console.log("Total Count:", totalCount, "Data:", data);
-
-    res.status(200).json({ status: "success", list: data, totalCount: totalCount });
+      res.status(200).json({
+        status: "success",
+        list: data,
+        totalCount: totalCount,
+      });
+    } else {
+      // Handle the case where the response array is empty
+      res.status(200).json({
+        status: "success",
+        list: [],
+        totalCount: 0,
+      });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
