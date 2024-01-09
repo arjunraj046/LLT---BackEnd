@@ -13,7 +13,8 @@ const {
   drawTimeRangeListDB,
   drawTimeSetupDB,
   deleteDrawTimeDB,
-  deleteColourSettingsDB
+  deleteColourSettingsDB,
+  deleteUserDB
 } = require("../database/repository/adminRepository");
 const { passwordHashing, passwordComparing } = require("../services/hasinging");
 const { getAgent } = require("../database/repository/authRepository");
@@ -271,6 +272,16 @@ const deleteColourSettings = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.body;
+    const result = await deleteUserDB(id);
+
+    res.status(200).json({ status: "success", result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 module.exports = {
   agentRegister,
   agentList,
@@ -286,5 +297,6 @@ module.exports = {
   drawTimeRangeList,
   drawTimeSetup,
   deleteDrawTime,
-  deleteColourSettings
+  deleteColourSettings,
+  deleteUser
 };

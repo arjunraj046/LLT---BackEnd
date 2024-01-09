@@ -16,7 +16,8 @@ const {
   drawTimeRangeList,
   drawTimeSetup,
   deleteDrawTime,
-  deleteColourSettings
+  deleteColourSettings,
+  deleteUser
 } = require("../controllers/adminController");
 const { adminAuthMiddleware } = require("../middleware/authMiddleware");
 
@@ -44,6 +45,7 @@ adminRoute.get("/enitity-draw-time-rang-list", drawTimeRangeList);
 adminRoute.post("/delete-entity-admin", deleteEntityAdmin);
 
 adminRoute.post("/delete-draw-time", deleteDrawTime);
+adminRoute.post("/delete-user", deleteUser);
 
 adminRoute.post("/delete-colour-settings", deleteColourSettings);
 

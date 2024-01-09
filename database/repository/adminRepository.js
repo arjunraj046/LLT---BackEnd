@@ -387,6 +387,18 @@ const deleteColourSettingsDB = async (id) => {
     throw error;
   }
 };
+const deleteUserDB = async (id) => {
+  try {
+    console.log("deleteUserDB in db ", id);
+    const _id = new mongoose.Types.ObjectId(id);
+    console.log(_id);
+    const deleteItem = await User.deleteOne({ _id });
+    return deleteItem;
+  } catch (error) {
+    console.error("Error fetching agent entities:", error);
+    throw error;
+  }
+};
 
 module.exports = {
   agentRegisterDB,
@@ -403,5 +415,6 @@ module.exports = {
   drawTimeRangeListDB,
   drawTimeSetupDB,
   deleteDrawTimeDB,
-  deleteColourSettingsDB
+  deleteColourSettingsDB,
+  deleteUserDB
 };
