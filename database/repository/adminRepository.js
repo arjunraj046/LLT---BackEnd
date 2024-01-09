@@ -375,6 +375,18 @@ const deleteDrawTimeDB = async (id) => {
     throw error;
   }
 };
+const deleteColourSettingsDB = async (id) => {
+  try {
+    console.log("deleteColourSettingsDB in db ", id);
+    const _id = new mongoose.Types.ObjectId(id);
+    console.log(_id);
+    const deleteItem = await RangeSchema.deleteOne({ _id });
+    return deleteItem;
+  } catch (error) {
+    console.error("Error fetching agent entities:", error);
+    throw error;
+  }
+};
 
 module.exports = {
   agentRegisterDB,
@@ -390,5 +402,6 @@ module.exports = {
   deleteEntityAdminDB,
   drawTimeRangeListDB,
   drawTimeSetupDB,
-  deleteDrawTimeDB
+  deleteDrawTimeDB,
+  deleteColourSettingsDB
 };
