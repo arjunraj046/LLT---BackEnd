@@ -5,13 +5,14 @@ const { ObjectId } = mongoose.Types;
 // const UserData = mongoose.model('UserData');
 const UserData = require("../models/UserData");
 
-const addagentDataDB = async (id, date, tokenNumber, count) => {
+const addagentDataDB = async (id, date, tokenNumber, count,drawTime) => {
   try {
     const userData = new UserData({
       userId: new ObjectId(id),
       tokenNumber: tokenNumber,
       count: count,
       date: date,
+      drawTime:drawTime
     });
 
     const savedUserData = await userData.save();

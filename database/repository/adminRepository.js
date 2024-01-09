@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const UserData = require("../models/UserData");
 const RangeSchema = require("../models/RangeSchema");
+const DrawTimeSchema = require("../models/DrawTimeSchema");
 const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Types;
 
@@ -79,8 +80,10 @@ const changeAgentStatusDB = async (id) => {
     throw error;
   }
 };
-const listEntityDB = async (tokenNumberr, dateFilter) => {
+const listEntityDB = async (tokenNumberr, dateFilterr) => {
   try {
+
+    console.log("inn db",dateFilterr);
     let tokenNumber = parseInt(tokenNumberr);
 
     let matchStage = {};
@@ -88,13 +91,13 @@ const listEntityDB = async (tokenNumberr, dateFilter) => {
     if (tokenNumber) {
       matchStage.tokenNumber = tokenNumber;
     }
-    if (dateFilter) {
-      const startDate = new Date(`${dateFilter}T00:00:00.000Z`);
-      const endDate = new Date(`${dateFilter}T23:59:59.999Z`);
+    if (dateFilterr) {
+      const startDate = new Date(`${dateFilterr}T00:00:00.000Z`);
+      const endDate = new Date(`${dateFilterr}T23:59:59.999Z`);
       matchStage.date = { $gte: startDate, $lte: endDate };
     }
 
-    console.log("ms", matchStage);
+    // console.log("ms", matchStage);
 
     let aggregationPipeline = [
       {
@@ -256,7 +259,44 @@ const listEntityDB = async (tokenNumberr, dateFilter) => {
 //   }
 // };
 
+const entityCumulativeDB = async ( tokenNumberr,dateFilter) => {
+  try {
+    let tokenNumber = parseInt(tokenNumberr);
 
+    let matchStage = {};
+
+    if (tokenNumber) {
+      matchStage.tokenNumber = tokenNumber;
+    }
+    if (dateFilter) {
+      const startDate = new Date(`${dateFilter}T00:00:00.000Z`);
+      const endDate = new Date(`${dateFilter}T23:59:59.999Z`);
+      matchStage.date = { $gte: startDate, $lte: endDate };
+    }
+    console.log('ms',matchStage);
+    const pipeline = [
+      // Match documents based on filter parameters
+      {
+        $match: matchStage,
+      },
+      // Group by tokenNumber
+      {
+        $group: {
+          _id: '$tokenNumber',
+          total: { $sum: '$count' },
+        },
+      },
+    ];
+
+    const results = await UserData.aggregate(pipeline);
+    return results;
+  } catch (error) {
+    throw error;
+  }
+};
+
+  // MongoDB aggregation pipeline to calculate cumulative counts
+   
 
 
 const rangeSetupDB = async (startRange, endRange, color) => {
@@ -272,11 +312,30 @@ const rangeSetupDB = async (startRange, endRange, color) => {
     throw error;
   }
 };
+const drawTimeSetupDB = async (drawTime) => {
+  try {
+    const newdrawTime = new DrawTimeSchema({
+      drawTime
+    });
+    const saveddrawTime = await newdrawTime.save();
+    return saveddrawTime;
+  } catch (error) {
+    throw error;
+  }
+};
 
 const rangeListDB = async () => {
   try {
     const ranges = await RangeSchema.find();
     return ranges;
+  } catch (error) {
+    throw error;
+  }
+};
+const drawTimeRangeListDB = async () => {
+  try {
+    const drawTime = await DrawTimeSchema.find();
+    return drawTime;
   } catch (error) {
     throw error;
   }
@@ -304,6 +363,18 @@ const deleteEntityAdminDB = async (id) => {
     throw error;
   }
 };
+const deleteDrawTimeDB = async (id) => {
+  try {
+    console.log("deletedeleteDrawTimeDB in db ", id);
+    const _id = new mongoose.Types.ObjectId(id);
+    console.log(_id);
+    const deleteItem = await DrawTimeSchema.deleteOne({ _id });
+    return deleteItem;
+  } catch (error) {
+    console.error("Error fetching agent entities:", error);
+    throw error;
+  }
+};
 
 module.exports = {
   agentRegisterDB,
@@ -312,9 +383,12 @@ module.exports = {
   changeAgentStatusDB,
   agentPasswordChangeDB,
   listEntityDB,
-  // listEntitySearchDB,
+  entityCumulativeDB,
   rangeSetupDB,
   rangeListDB,
   agentDataDB,
-  deleteEntityAdminDB
+  deleteEntityAdminDB,
+  drawTimeRangeListDB,
+  drawTimeSetupDB,
+  deleteDrawTimeDB
 };

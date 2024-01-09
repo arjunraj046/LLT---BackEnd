@@ -18,13 +18,13 @@ const { addagentDataDB, getAgentEntity ,deleteEntity} = require("../database/rep
 const addEntity = async (req, res) => {
   try {
     console.log("hai add");
-    const { _id, date, tokenNumber, count } = req.body;
+    const { _id, date, tokenNumber, count,drawTime } = req.body;
     // let id = "658a603d365ed61de6f39827";
     // let date = Date.now(); // Fixed typo
     // let tokenNumber = 32;
     // let count = 40;
 
-    let result = await addagentDataDB(_id, date, tokenNumber, count); // Renamed variable to prevent conflict
+    let result = await addagentDataDB(_id, date, tokenNumber, count,drawTime); // Renamed variable to prevent conflict
     console.log(result);
     res.status(200).json({ status: "success", result }); // Sending result in response
   } catch (error) {

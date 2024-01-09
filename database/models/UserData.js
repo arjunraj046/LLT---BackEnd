@@ -8,7 +8,8 @@ const userDataSchema = new Schema({
   date: {
     type: Date,
     default: () => new Date().toISOString()
-  }
+  },
+  drawTime:{type:String,required:true}
   
 });
 

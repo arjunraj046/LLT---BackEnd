@@ -5,11 +5,14 @@ const {
   agentPasswordChangeDB,
   changeAgentStatusDB,
   listEntityDB,
-  // listEntitySearchDB,
+  entityCumulativeDB,
   rangeSetupDB,
   rangeListDB,
   agentDataDB,
-  deleteEntityAdminDB
+  deleteEntityAdminDB,
+  drawTimeRangeListDB,
+  drawTimeSetupDB,
+  deleteDrawTimeDB
 } = require("../database/repository/adminRepository");
 const { passwordHashing, passwordComparing } = require("../services/hasinging");
 const { getAgent } = require("../database/repository/authRepository");
@@ -18,7 +21,13 @@ const agentRegister = async (req, res) => {
   try {
     const { name, userName, contactNumber, email, password } = req.body;
     const hashedPassword = await passwordHashing(password);
-    const newUser = await agentRegisterDB(name, userName, contactNumber, email, hashedPassword);
+    const newUser = await agentRegisterDB(
+      name,
+      userName,
+      contactNumber,
+      email,
+      hashedPassword
+    );
     res.status(200).json({ status: "success", newUser });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -52,8 +61,20 @@ const editAgent = async (req, res) => {
   try {
     const { _id, name, userName, email, contactNumber } = req.body;
     console.log(_id, name, userName, email, contactNumber);
-    const updateUser = await agentProfileEditDB(_id, name, userName, email, contactNumber);
-    res.status(200).json({ status: "success", message: "Agent updated successfully", updateUser });
+    const updateUser = await agentProfileEditDB(
+      _id,
+      name,
+      userName,
+      email,
+      contactNumber
+    );
+    res
+      .status(200)
+      .json({
+        status: "success",
+        message: "Agent updated successfully",
+        updateUser,
+      });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -64,13 +85,22 @@ const editPasswordAgent = async (req, res) => {
     const { _id, previousPassword, password } = req.body;
     // console.log(req.body);
     const agentDetails = await agentDataDB(_id);
-    const pass = await passwordComparing(agentDetails.password, previousPassword);
+    const pass = await passwordComparing(
+      agentDetails.password,
+      previousPassword
+    );
     if (pass) {
       const hashPassword = await passwordHashing(password);
       const data = await agentPasswordChangeDB(_id, hashPassword);
       console.log(data);
       console.log("success");
-      res.status(200).json({ status: "success", message: "Agent password change successfully", data });
+      res
+        .status(200)
+        .json({
+          status: "success",
+          message: "Agent password change successfully",
+          data,
+        });
     } else {
       return res.status(401).json({ error: "Password is incorrect!" });
     }
@@ -89,19 +119,34 @@ const agentStatusChange = async (req, res) => {
   }
 };
 
-const listEntity = async (req, res) => {
-  try {
-    const response = await listEntityDB();
+// const listEntity = async (req, res) => {
+//   try {
+//     console.log("innn");
+//     const { dateFilter } = req.query;
+//     console.log(dateFilter);
+//     const response = await listEntityDB('',dateFilter);
+//     if (response && response.length > 0) {
+//       const totalCount = response[0].totalCount;
+//       const data = response[0].data;
 
-    let totalCount = response[0].totalCount;
-    let data = response[0].data;
+//       console.log("Total Count:", totalCount, "Data:", data);
 
-    console.log("totalCount", totalCount, "data", data);
-    res.status(200).json({ status: "success", list: data, totalCount: totalCount });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+//       res.status(200).json({
+//         status: "success",
+//         list: data,
+//         totalCount: totalCount,
+//       });
+//     } else {
+//       // Handle the case where the response array is empty
+//       res.status(200).json({
+//         status: "success",
+//         list: [],
+//         totalCount: 0,
+//       });
+//     } } catch (error) {
+//       res.status(500).json({ error: error.message });
+//     }
+// };
 
 const listEntitySearch = async (req, res) => {
   try {
@@ -137,12 +182,36 @@ const listEntitySearch = async (req, res) => {
   }
 };
 
+const entityCumulative = async (req, res) => {
+  try {
+    const { tokenNumber, dateFilter } = req.query;
+
+    console.log("Token Number:", tokenNumber);
+    console.log("Date Filter:", dateFilter);
+    const response = await entityCumulativeDB(tokenNumber, dateFilter);
+    // let totalCount = response[0].totalCount;
+    // let data = response[0].data;
+    console.log("res", response);
+    res.status(200).json({ status: "success", response });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 const rangeSetup = async (req, res) => {
   try {
     const { startRange, endRange, color } = req.body;
     const range = await rangeSetupDB(startRange, endRange, color);
     res.status(200).json({ status: "success", range });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+const drawTimeSetup = async (req, res) => {
+  try {
+    const { time } = req.body;
+    const drawTime = await drawTimeSetupDB( time );
+    res.status(200).json({ status: "success", drawTime });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -159,15 +228,51 @@ const rangeList = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-const deleteEntityAdmin = async(req,res)=>{
+const drawTimeRangeList = async (req, res) => {
+  try {
+    console.log("Rang list");
+    const drawTimeList = await drawTimeRangeListDB();
+    console.log(drawTimeList);
+    res.status(200).json({ status: "success", drawTimeList });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+const deleteEntityAdmin = async (req, res) => {
   try {
     console.log("agent", req.body);
     const { id } = req.body;
     const result = await deleteEntityAdminDB(id);
 
-    res.status(200).json({ status: "success" ,result});
+    res.status(200).json({ status: "success", result });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
-module.exports = { agentRegister, agentList, agentDetails, editAgent, agentStatusChange, listEntity, listEntitySearch, rangeSetup, rangeList, editPasswordAgent, deleteEntityAdmin };
+};
+const deleteDrawTime = async (req, res) => {
+  try {
+    const { id } = req.body;
+    const result = await deleteDrawTimeDB(id);
+
+    res.status(200).json({ status: "success", result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+module.exports = {
+  agentRegister,
+  agentList,
+  agentDetails,
+  editAgent,
+  agentStatusChange,
+  listEntitySearch,
+  rangeSetup,
+  rangeList,
+  editPasswordAgent,
+  deleteEntityAdmin,
+  entityCumulative,
+  drawTimeRangeList,
+  drawTimeSetup,
+  deleteDrawTime
+};
