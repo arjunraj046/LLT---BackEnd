@@ -58,25 +58,24 @@ const agentDetails = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 const editAgent = async (req, res) => {
   try {
-    const { _id, name, userName, email, contactNumber } = req.body;
-    console.log(_id, name, userName, email, contactNumber);
+    console.log("body",req.body);
+    const { _id, name, userName, email, contactNumber, status } = req.body;
+    console.log(_id, name, userName, email, contactNumber,status);
     const updateUser = await agentProfileEditDB(
       _id,
       name,
       userName,
       email,
-      contactNumber
+      contactNumber,
+      status
     );
-    res
-      .status(200)
-      .json({
-        status: "success",
-        message: "Agent updated successfully",
-        updateUser,
-      });
+    res.status(200).json({
+      status: "success",
+      message: "Agent updated successfully",
+      updateUser,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -152,13 +151,14 @@ const agentStatusChange = async (req, res) => {
 
 const listEntitySearch = async (req, res) => {
   try {
-    const { tokenNumber, dateFilter } = req.query;
+    const { tokenNumber, dateFilter,drawTime } = req.query;
 
     console.log("Token Number:", tokenNumber);
     console.log("Date Filter:", dateFilter);
+    console.log("drawTime:", drawTime);
 
     // Call the function to fetch data from the database with tokenNumber and dateFilter
-    const response = await listEntityDB(tokenNumber, dateFilter);
+    const response = await listEntityDB(tokenNumber, dateFilter,drawTime);
 
     if (response && response.length > 0) {
       const totalCount = response[0].totalCount;
@@ -282,6 +282,7 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 module.exports = {
   agentRegister,
   agentList,

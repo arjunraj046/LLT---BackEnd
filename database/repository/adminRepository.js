@@ -41,10 +41,18 @@ const listAgentsDB = async (filter, pageNumber) => {
   }
 };
 
-const agentProfileEditDB = async (_id, name, userName, email, contactNumber) => {
+const agentProfileEditDB = async (
+  _id,
+  name,
+  userName,
+  email,
+  contactNumber,status
+) => {
   try {
-    const updateUserinfo = { name, userName, email, contactNumber };
-    const updatedAgent = await User.findByIdAndUpdate(_id, updateUserinfo, { new: true });
+    const updateUserinfo = { name, userName, email, contactNumber ,status};
+    const updatedAgent = await User.findByIdAndUpdate(_id, updateUserinfo, {
+      new: true,
+    });
     return updatedAgent;
   } catch (error) {
     console.error("Error editing agent profile:", error);
@@ -80,7 +88,7 @@ const changeAgentStatusDB = async (id) => {
     throw error;
   }
 };
-const listEntityDB = async (tokenNumberr, dateFilterr) => {
+const listEntityDB = async (tokenNumberr, dateFilterr,drawTime) => {
   try {
 
     console.log("inn db",dateFilterr);
@@ -90,6 +98,9 @@ const listEntityDB = async (tokenNumberr, dateFilterr) => {
 
     if (tokenNumber) {
       matchStage.tokenNumber = tokenNumber;
+    }
+    if (drawTime) {
+      matchStage.drawTime = drawTime;
     }
     if (dateFilterr) {
       const startDate = new Date(`${dateFilterr}T00:00:00.000Z`);
@@ -129,6 +140,7 @@ const listEntityDB = async (tokenNumberr, dateFilterr) => {
           email: "$data.email",
           userRole: "$data.userRole",
           status: "$data.status",
+          drawTime:"$drawTime",
         },
       },
       {
