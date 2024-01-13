@@ -186,11 +186,11 @@ const listEntitySearch = async (req, res) => {
 
 const entityCumulative = async (req, res) => {
   try {
-    const { tokenNumber, dateFilter } = req.query;
+    const { tokenNumber, dateFilter,drawTime } = req.query;
 
     console.log("Token Number:", tokenNumber);
     console.log("Date Filter:", dateFilter);
-    const response = await entityCumulativeDB(tokenNumber, dateFilter);
+    const response = await entityCumulativeDB(tokenNumber, dateFilter,drawTime);
     // let totalCount = response[0].totalCount;
     // let data = response[0].data;
     console.log("res", response);

@@ -271,7 +271,7 @@ const listEntityDB = async (tokenNumberr, dateFilterr,drawTime) => {
 //   }
 // };
 
-const entityCumulativeDB = async ( tokenNumberr,dateFilter) => {
+const entityCumulativeDB = async ( tokenNumberr,dateFilter,drawTime) => {
   try {
     let tokenNumber = parseInt(tokenNumberr);
 
@@ -279,6 +279,9 @@ const entityCumulativeDB = async ( tokenNumberr,dateFilter) => {
 
     if (tokenNumber) {
       matchStage.tokenNumber = tokenNumber;
+    }
+    if (drawTime) {
+      matchStage.drawTime = drawTime;
     }
     if (dateFilter) {
       const startDate = new Date(`${dateFilter}T00:00:00.000Z`);
