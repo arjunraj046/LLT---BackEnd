@@ -407,6 +407,11 @@ const deleteUserDB = async (id) => {
     console.log("deleteUserDB in db ", id);
     const _id = new mongoose.Types.ObjectId(id);
     console.log(_id);
+    
+    // Add await here
+    const tickets = await UserData.deleteMany({ userId: _id });
+    console.log(tickets);
+
     const deleteItem = await User.deleteOne({ _id });
     return deleteItem;
   } catch (error) {
@@ -414,6 +419,7 @@ const deleteUserDB = async (id) => {
     throw error;
   }
 };
+
 
 module.exports = {
   agentRegisterDB,

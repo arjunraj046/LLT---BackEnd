@@ -14,7 +14,7 @@ const {
   drawTimeSetupDB,
   deleteDrawTimeDB,
   deleteColourSettingsDB,
-  deleteUserDB
+  deleteUserDB,
 } = require("../database/repository/adminRepository");
 const { passwordHashing, passwordComparing } = require("../services/hasinging");
 const { getAgent } = require("../database/repository/authRepository");
@@ -60,9 +60,9 @@ const agentDetails = async (req, res) => {
 };
 const editAgent = async (req, res) => {
   try {
-    console.log("body",req.body);
+    console.log("body", req.body);
     const { _id, name, userName, email, contactNumber, status } = req.body;
-    console.log(_id, name, userName, email, contactNumber,status);
+    console.log(_id, name, userName, email, contactNumber, status);
     const updateUser = await agentProfileEditDB(
       _id,
       name,
@@ -83,28 +83,26 @@ const editAgent = async (req, res) => {
 
 const editPasswordAgent = async (req, res) => {
   try {
-    const { _id, previousPassword, password } = req.body;
+    const { _id, password } = req.body;
     // console.log(req.body);
-    const agentDetails = await agentDataDB(_id);
-    const pass = await passwordComparing(
-      agentDetails.password,
-      previousPassword
-    );
-    if (pass) {
-      const hashPassword = await passwordHashing(password);
-      const data = await agentPasswordChangeDB(_id, hashPassword);
-      console.log(data);
-      console.log("success");
-      res
-        .status(200)
-        .json({
-          status: "success",
-          message: "Agent password change successfully",
-          data,
-        });
-    } else {
-      return res.status(401).json({ error: "Password is incorrect!" });
-    }
+    // const agentDetails = await agentDataDB(_id);
+    // const pass = await passwordComparing(
+    //   agentDetails.password,
+    //   // previousPassword
+    // );
+    // if (pass) {
+    const hashPassword = await passwordHashing(password);
+    const data = await agentPasswordChangeDB(_id, hashPassword);
+    // console.log(data)
+    // console.log("success")
+    res.status(200).json({
+      status: "success",
+      message: "Agent password change successfully",
+      data,
+    });
+    // } else {
+    //   return res.status(401).json({ error: "Password is incorrect!" });
+    // }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -129,9 +127,7 @@ const agentStatusChange = async (req, res) => {
 //     if (response && response.length > 0) {
 //       const totalCount = response[0].totalCount;
 //       const data = response[0].data;
-
 //       console.log("Total Count:", totalCount, "Data:", data);
-
 //       res.status(200).json({
 //         status: "success",
 //         list: data,
@@ -151,14 +147,14 @@ const agentStatusChange = async (req, res) => {
 
 const listEntitySearch = async (req, res) => {
   try {
-    const { tokenNumber, dateFilter,drawTime } = req.query;
+    const { tokenNumber, dateFilter, drawTime } = req.query;
 
     console.log("Token Number:", tokenNumber);
     console.log("Date Filter:", dateFilter);
     console.log("drawTime:", drawTime);
 
     // Call the function to fetch data from the database with tokenNumber and dateFilter
-    const response = await listEntityDB(tokenNumber, dateFilter,drawTime);
+    const response = await listEntityDB(tokenNumber, dateFilter, drawTime);
 
     if (response && response.length > 0) {
       const totalCount = response[0].totalCount;
@@ -172,7 +168,6 @@ const listEntitySearch = async (req, res) => {
         totalCount: totalCount,
       });
     } else {
-      // Handle the case where the response array is empty
       res.status(200).json({
         status: "success",
         list: [],
@@ -186,11 +181,15 @@ const listEntitySearch = async (req, res) => {
 
 const entityCumulative = async (req, res) => {
   try {
-    const { tokenNumber, dateFilter,drawTime } = req.query;
+    const { tokenNumber, dateFilter, drawTime } = req.query;
 
     console.log("Token Number:", tokenNumber);
     console.log("Date Filter:", dateFilter);
-    const response = await entityCumulativeDB(tokenNumber, dateFilter,drawTime);
+    const response = await entityCumulativeDB(
+      tokenNumber,
+      dateFilter,
+      drawTime
+    );
     // let totalCount = response[0].totalCount;
     // let data = response[0].data;
     console.log("res", response);
@@ -212,7 +211,7 @@ const rangeSetup = async (req, res) => {
 const drawTimeSetup = async (req, res) => {
   try {
     const { time } = req.body;
-    const drawTime = await drawTimeSetupDB( time );
+    const drawTime = await drawTimeSetupDB(time);
     res.status(200).json({ status: "success", drawTime });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -299,5 +298,5 @@ module.exports = {
   drawTimeSetup,
   deleteDrawTime,
   deleteColourSettings,
-  deleteUser
+  deleteUser,
 };
