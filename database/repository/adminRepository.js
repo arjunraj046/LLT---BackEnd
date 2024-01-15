@@ -301,6 +301,10 @@ const entityCumulativeDB = async ( tokenNumberr,dateFilter,drawTime) => {
           total: { $sum: '$count' },
         },
       },
+      {
+        $sort: { total: -1 },
+      }
+      
     ];
 
     const results = await UserData.aggregate(pipeline);
