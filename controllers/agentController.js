@@ -1,4 +1,9 @@
-const { addagentDataDB, getAgentEntity ,deleteEntity} = require("../database/repository/agentRepository");
+const {
+  addagentDataDB,
+  getAgentEntity,
+  deleteEntity,
+} = require("../database/repository/agentRepository");
+const { getAgent } = require("../database/repository/authRepository");
 
 // const addEntity = async (req, res) => {
 //   try {
@@ -18,15 +23,26 @@ const { addagentDataDB, getAgentEntity ,deleteEntity} = require("../database/rep
 const addEntity = async (req, res) => {
   try {
     console.log("hai add");
-    const { _id, date, tokenNumber, count,drawTime } = req.body;
+    const { _id, date, tokenNumber, count, drawTime } = req.body;
     // let id = "658a603d365ed61de6f39827";
     // let date = Date.now(); // Fixed typo
     // let tokenNumber = 32;
     // let count = 40;
+    let user = await getAgent(_id);
 
-    let result = await addagentDataDB(_id, date, tokenNumber, count,drawTime); // Renamed variable to prevent conflict
-    console.log(result);
-    res.status(200).json({ status: "success", result }); // Sending result in response
+    if (user) {
+      let result = await addagentDataDB(
+        _id,
+        date,
+        tokenNumber,
+        count,
+        drawTime
+      ); // Renamed variable to prevent conflict
+      console.log(result);
+      res.status(200).json({ status: "success", result }); // Sending result in response
+    } else {
+      return res.status(404).json({ status: "error", message: "User not found" });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -47,17 +63,16 @@ const listEntity = async (req, res) => {
   }
 };
 
-const deleteEntityAgent = async(req,res)=>{
+const deleteEntityAgent = async (req, res) => {
   try {
     console.log("deleteagent", req.body);
     const { id } = req.body;
     const result = await deleteEntity(id);
 
-    res.status(200).json({ status: "success" ,result});
+    res.status(200).json({ status: "success", result });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
-
-module.exports = { addEntity, listEntity,deleteEntityAgent };
+module.exports = { addEntity, listEntity, deleteEntityAgent };
