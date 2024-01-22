@@ -354,6 +354,7 @@ const rangeListDB = async () => {
 const drawTimeRangeListDB = async () => {
   try {
     const currentTime = new Date();
+    console.log('Current Time:', currentTime);
     const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
 
     const drawTime = await DrawTimeSchema.aggregate([
@@ -381,6 +382,7 @@ const drawTimeRangeListDB = async () => {
       { $sort: { timeDifference: 1 } },
       { $project: { drawTimeMinutes: 0, timeDifference: 0 } }, // Exclude additional fields from the result
     ]);
+    console.log('Draw Time:', drawTime);
 
     return drawTime;
   } catch (error) {
