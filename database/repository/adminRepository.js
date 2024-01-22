@@ -395,8 +395,6 @@ const drawTimeRangeListDB = async () => {
 };
 
 
-
-
 const agentDataDB = async (id) => {
   try {
     let _id = new mongoose.Types.ObjectId(id);
