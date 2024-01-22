@@ -356,37 +356,39 @@ const drawTimeRangeListDB = async () => {
     const currentTime = new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata' });
     console.log('Current Time (UTC+05:30):', currentTime);
 
-    const currentMinutes = new Date().getHours() * 60 + new Date().getMinutes();
-
-    const drawTime = await DrawTimeSchema.aggregate([
+    const drawTimeList = await DrawTimeSchema.aggregate([
       {
         $addFields: {
-          drawTimeMinutes: {
-            $add: [
-              { $multiply: [{ $toInt: { $substr: ['$drawTime', 0, 2] } }, 60] }, // hours to minutes
-              { $toInt: { $substr: ['$drawTime', 3, 2] } }, // add minutes
-            ],
-          },
-        },
-      },
-      {
-        $addFields: {
-          timeDifference: {
-            $cond: {
-              if: { $gte: ['$drawTimeMinutes', currentMinutes] },
-              then: { $subtract: ['$drawTimeMinutes', currentMinutes] },
-              else: { $add: [1440, '$drawTimeMinutes', currentMinutes] }, // add 24 hours if the draw time is earlier
+          drawTimeDate: {
+            $dateFromString: {
+              dateString: {
+                $concat: [
+                  { $toString: { $year: new Date() } },
+                  '-',
+                  { $toString: { $month: new Date() } },
+                  '-',
+                  { $toString: { $dayOfMonth: new Date() } },
+                  'T',
+                  '$drawTime',
+                ],
+              },
+              format: '%Y-%m-%dT%H:%M',
+              timezone: 'Asia/Kolkata',
             },
           },
         },
       },
-      { $sort: { timeDifference: 1 } },
-      { $project: { drawTimeMinutes: 0, timeDifference: 0 } }, // Exclude additional fields from the result
     ]);
 
-    console.log('Draw Time:', drawTime);
+    const sortedDrawTimes = drawTimeList.sort((a, b) => {
+      const timeDifferenceA = Math.abs(new Date(currentTime) - a.drawTimeDate);
+      const timeDifferenceB = Math.abs(new Date(currentTime) - b.drawTimeDate);
+      return timeDifferenceA - timeDifferenceB;
+    });
 
-    return drawTime;
+    console.log('Sorted Draw Times:', sortedDrawTimes);
+
+    return sortedDrawTimes;
   } catch (error) {
     throw error;
   }

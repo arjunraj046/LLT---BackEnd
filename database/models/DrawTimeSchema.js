@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const DrawTimeSchema = new mongoose.Schema({
   drawTime: {
-    type: String,
+    type: Date,
     required: true,
   },
 });
