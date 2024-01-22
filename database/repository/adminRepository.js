@@ -353,36 +353,32 @@ const rangeListDB = async () => {
 };
 const drawTimeRangeListDB = async () => {
   try {
-    const currentTime = new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata' });
-    console.log('Current Time (UTC+05:30):', currentTime);
+    const currentDateTime = new Date();
+    const currentMinutes = currentDateTime.getHours() * 60 + currentDateTime.getMinutes();
+    console.log('Current Time (UTC+05:30):', currentDateTime);
 
     const drawTimeList = await DrawTimeSchema.aggregate([
       {
         $addFields: {
-          drawTimeDate: {
-            $dateFromString: {
-              dateString: {
-                $concat: [
-                  { $toString: { $year: new Date() } },
-                  '-',
-                  { $toString: { $month: new Date() } },
-                  '-',
-                  { $toString: { $dayOfMonth: new Date() } },
-                  'T',
-                  '$drawTime',
-                ],
-              },
-              format: '%Y-%m-%dT%H:%M',
-              timezone: 'Asia/Kolkata',
-            },
+          drawTimeMinutes: {
+            $add: [
+              { $multiply: [{ $toInt: { $substr: ['$drawTime', 0, 2] } }, 60] }, // hours to minutes
+              { $toInt: { $substr: ['$drawTime', 3, 2] } }, // add minutes
+            ],
           },
         },
       },
     ]);
 
     const sortedDrawTimes = drawTimeList.sort((a, b) => {
-      const timeDifferenceA = Math.abs(new Date(currentTime) - a.drawTimeDate);
-      const timeDifferenceB = Math.abs(new Date(currentTime) - b.drawTimeDate);
+      const timeDifferenceA = a.drawTimeMinutes - currentMinutes >= 0
+        ? a.drawTimeMinutes - currentMinutes
+        : a.drawTimeMinutes + 1440 - currentMinutes; // add 24 hours if the draw time is earlier
+
+      const timeDifferenceB = b.drawTimeMinutes - currentMinutes >= 0
+        ? b.drawTimeMinutes - currentMinutes
+        : b.drawTimeMinutes + 1440 - currentMinutes; // add 24 hours if the draw time is earlier
+
       return timeDifferenceA - timeDifferenceB;
     });
 
