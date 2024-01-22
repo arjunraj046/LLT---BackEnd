@@ -351,58 +351,48 @@ const rangeListDB = async () => {
     throw error;
   }
 };
+const { DateTime } = require('luxon');
+
 const drawTimeRangeListDB = async () => {
   try {
     const currentDateTime = new Date();
-    const currentLocaleTimeString = currentDateTime.toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata' });
-    console.log('Current Time (UTC+05:30):', currentLocaleTimeString);
+    console.log('Current Time:', currentDateTime);
+
+    const currentMinutes = currentDateTime.getHours() * 60 + currentDateTime.getMinutes();
 
     const drawTimeList = await DrawTimeSchema.aggregate([
       {
         $addFields: {
-          drawTimeDate: {
-            $dateFromString: {
-              dateString: {
-                $concat: [
-                  { $toString: { $year: currentDateTime } },
-                  '-',
-                  { $toString: { $month: currentDateTime } },
-                  '-',
-                  { $toString: { $dayOfMonth: currentDateTime } },
-                  'T',
-                  '$drawTime',
-                ],
-              },
-              format: '%Y-%m-%dT%H:%M',
-              timezone: 'Asia/Kolkata',
+          drawTimeMinutes: {
+            $add: [
+              { $multiply: [{ $toInt: { $substr: ['$drawTime', 0, 2] } }, 60] }, // hours to minutes
+              { $toInt: { $substr: ['$drawTime', 3, 2] } }, // add minutes
+            ],
+          },
+        },
+      },
+      {
+        $addFields: {
+          timeDifference: {
+            $cond: {
+              if: { $gte: ['$drawTimeMinutes', currentMinutes] },
+              then: { $subtract: ['$drawTimeMinutes', currentMinutes] },
+              else: { $add: [1440, '$drawTimeMinutes', currentMinutes] }, // add 24 hours if the draw time is earlier
             },
           },
         },
       },
+      { $sort: { timeDifference: 1 } },
+      { $project: { _id: 1, drawTime: 1 } }
     ]);
 
-    const sortedDrawTimes = drawTimeList.sort((a, b) => {
-      const formatter = new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: false,
-        timeZone: 'Asia/Kolkata',
-      });
+    console.log('Sorted Draw Times:', drawTimeList);
 
-      const timeDifferenceA = Math.abs(new Date(currentLocaleTimeString) - a.drawTimeDate);
-      const timeDifferenceB = Math.abs(new Date(currentLocaleTimeString) - b.drawTimeDate);
-
-      return timeDifferenceA - timeDifferenceB;
-    });
-
-    console.log('Sorted Draw Times:', sortedDrawTimes);
-
-    return sortedDrawTimes;
+    return drawTimeList;
   } catch (error) {
     throw error;
   }
 };
-
 
 
 
