@@ -377,7 +377,7 @@ const drawTimeRangeListDB = async () => {
             $cond: {
               if: { $gte: ['$drawTimeMinutes', currentMinutes] },
               then: { $subtract: ['$drawTimeMinutes', currentMinutes] },
-              else: { $add: [1440, '$drawTimeMinutes', currentMinutes] }, // add 24 hours if the draw time is earlier
+              else: { $add: [1440, '$drawTimeMinutes'] }, // add 24 hours if the draw time is earlier
             },
           },
         },
@@ -393,6 +393,7 @@ const drawTimeRangeListDB = async () => {
     throw error;
   }
 };
+
 
 
 const agentDataDB = async (id) => {
