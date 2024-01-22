@@ -353,12 +353,41 @@ const rangeListDB = async () => {
 };
 const drawTimeRangeListDB = async () => {
   try {
-    const drawTime = await DrawTimeSchema.find();
+    const currentTime = new Date();
+    const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
+
+    const drawTime = await DrawTimeSchema.aggregate([
+      {
+        $addFields: {
+          drawTimeMinutes: {
+            $add: [
+              { $multiply: [{ $toInt: { $substr: ['$drawTime', 0, 2] } }, 60] }, // hours to minutes
+              { $toInt: { $substr: ['$drawTime', 3, 2] } }, // add minutes
+            ],
+          },
+        },
+      },
+      {
+        $addFields: {
+          timeDifference: {
+            $cond: {
+              if: { $gte: ['$drawTimeMinutes', currentMinutes] },
+              then: { $subtract: ['$drawTimeMinutes', currentMinutes] },
+              else: { $add: ['$drawTimeMinutes', 1440, currentMinutes] }, // add 24 hours if the draw time is earlier
+            },
+          },
+        },
+      },
+      { $sort: { timeDifference: 1 } },
+      { $project: { drawTimeMinutes: 0, timeDifference: 0 } }, // Exclude additional fields from the result
+    ]);
+
     return drawTime;
   } catch (error) {
     throw error;
   }
 };
+
 
 const agentDataDB = async (id) => {
   try {
