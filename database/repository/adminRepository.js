@@ -353,9 +353,10 @@ const rangeListDB = async () => {
 };
 const drawTimeRangeListDB = async () => {
   try {
-    const currentTime = new Date();
-    console.log('Current Time:', currentTime);
-    const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
+    const currentTime = new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata' });
+    console.log('Current Time (UTC+05:30):', currentTime);
+
+    const currentMinutes = new Date().getHours() * 60 + new Date().getMinutes();
 
     const drawTime = await DrawTimeSchema.aggregate([
       {
@@ -390,6 +391,7 @@ const drawTimeRangeListDB = async () => {
     throw error;
   }
 };
+
 
 
 
