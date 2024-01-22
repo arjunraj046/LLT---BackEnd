@@ -354,30 +354,43 @@ const rangeListDB = async () => {
 const drawTimeRangeListDB = async () => {
   try {
     const currentDateTime = new Date();
-    const currentMinutes = currentDateTime.getHours() * 60 + currentDateTime.getMinutes();
-    console.log('Current Time (UTC+05:30):', currentDateTime);
+    const currentLocaleTimeString = currentDateTime.toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata' });
+    console.log('Current Time (UTC+05:30):', currentLocaleTimeString);
 
     const drawTimeList = await DrawTimeSchema.aggregate([
       {
         $addFields: {
-          drawTimeMinutes: {
-            $add: [
-              { $multiply: [{ $toInt: { $substr: ['$drawTime', 0, 2] } }, 60] }, // hours to minutes
-              { $toInt: { $substr: ['$drawTime', 3, 2] } }, // add minutes
-            ],
+          drawTimeDate: {
+            $dateFromString: {
+              dateString: {
+                $concat: [
+                  { $toString: { $year: currentDateTime } },
+                  '-',
+                  { $toString: { $month: currentDateTime } },
+                  '-',
+                  { $toString: { $dayOfMonth: currentDateTime } },
+                  'T',
+                  '$drawTime',
+                ],
+              },
+              format: '%Y-%m-%dT%H:%M',
+              timezone: 'Asia/Kolkata',
+            },
           },
         },
       },
     ]);
 
     const sortedDrawTimes = drawTimeList.sort((a, b) => {
-      const timeDifferenceA = a.drawTimeMinutes - currentMinutes >= 0
-        ? a.drawTimeMinutes - currentMinutes
-        : a.drawTimeMinutes + 1440 - currentMinutes; // add 24 hours if the draw time is earlier
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false,
+        timeZone: 'Asia/Kolkata',
+      });
 
-      const timeDifferenceB = b.drawTimeMinutes - currentMinutes >= 0
-        ? b.drawTimeMinutes - currentMinutes
-        : b.drawTimeMinutes + 1440 - currentMinutes; // add 24 hours if the draw time is earlier
+      const timeDifferenceA = Math.abs(new Date(currentLocaleTimeString) - a.drawTimeDate);
+      const timeDifferenceB = Math.abs(new Date(currentLocaleTimeString) - b.drawTimeDate);
 
       return timeDifferenceA - timeDifferenceB;
     });
