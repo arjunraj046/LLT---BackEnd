@@ -56,26 +56,48 @@ const addagentDataDB = async (id, date, tokenNumber, count,drawTime) => {
 //     throw error;
 //   }
 // };
-
 const getAgentEntity = async (id) => {
   try {
     console.log("getAgentEntity in db ", id);
     const _id = new mongoose.Types.ObjectId(id);
     console.log(_id);
 
-    const list = await UserData.find({ userId: _id });
+    const list = await UserData.aggregate([
+      {
+        $match: { userId: _id }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'result'
+        }
+      }
+    ]);
 
     if (!list || list.length === 0) {
       return null;
     }
 
-    console.log(list);
-    return list;
+    // Check if the result array has elements and extract the username
+    const username = list[0].result[0].userName;
+
+    // Flatten the structure and include userName in each document
+    const modifiedList = list.map(item => {
+      const { result, ...rest } = item;
+      return { ...rest, userName: username };
+    });
+
+    console.log(modifiedList);
+    return modifiedList;
   } catch (error) {
     console.error("Error fetching agent entities:", error);
     throw error; // Re-throw the error to be handled by the caller
   }
 };
+
+
 
 const deleteEntity = async (id) => {
   try {
