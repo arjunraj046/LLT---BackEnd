@@ -5,9 +5,23 @@ const DrawTimeSchema = require("../models/DrawTimeSchema");
 const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Types;
 
-const agentRegisterDB = async (name, userName, contactNumber, email, hashedPassword) => {
+const agentRegisterDB = async (
+  name,
+  userName,
+  contactNumber,
+  email,
+  hashedPassword
+) => {
   try {
-    const newUser = new User({ name, userName, contactNumber, email, password: hashedPassword, userRole: 2, status: true });
+    const newUser = new User({
+      name,
+      userName,
+      contactNumber,
+      email,
+      password: hashedPassword,
+      userRole: 2,
+      status: true,
+    });
     await newUser.save();
     return newUser;
   } catch (error) {
@@ -46,10 +60,17 @@ const agentProfileEditDB = async (
   name,
   userName,
   email,
+<<<<<<< HEAD
   contactNumber,status
 ) => {
   try {
     const updateUserinfo = { name, userName, email, contactNumber ,status};
+=======
+  contactNumber
+) => {
+  try {
+    const updateUserinfo = { name, userName, email, contactNumber };
+>>>>>>> e8e34432ac48fe6af1c4c1d1b5cddd915147b3c5
     const updatedAgent = await User.findByIdAndUpdate(_id, updateUserinfo, {
       new: true,
     });
@@ -64,7 +85,9 @@ const agentPasswordChangeDB = async (_id, password) => {
   try {
     console.log("agentPasswordChangeDB");
     const updateUserinfo = { password };
-    const Agent = await User.findByIdAndUpdate(_id, updateUserinfo, { new: true });
+    const Agent = await User.findByIdAndUpdate(_id, updateUserinfo, {
+      new: true,
+    });
     console.log("DB", Agent);
     return Agent;
   } catch (error) {
@@ -78,7 +101,11 @@ const changeAgentStatusDB = async (id) => {
     const agent = await User.findOne({ _id: id });
 
     if (agent) {
-      const updatedAgent = await User.findOneAndUpdate({ _id: id }, { $set: { status: !agent.status } }, { new: true });
+      const updatedAgent = await User.findOneAndUpdate(
+        { _id: id },
+        { $set: { status: !agent.status } },
+        { new: true }
+      );
       return updatedAgent;
     } else {
       return null;
@@ -88,10 +115,13 @@ const changeAgentStatusDB = async (id) => {
     throw error;
   }
 };
+<<<<<<< HEAD
 const listEntityDB = async (tokenNumberr, dateFilterr,drawTime) => {
+=======
+const listEntityDB = async (tokenNumberr, dateFilterr, drawTime) => {
+>>>>>>> e8e34432ac48fe6af1c4c1d1b5cddd915147b3c5
   try {
-
-    console.log("inn db",dateFilterr);
+    console.log("inn db", dateFilterr);
     let tokenNumber = parseInt(tokenNumberr);
 
     let matchStage = {};
@@ -107,8 +137,9 @@ const listEntityDB = async (tokenNumberr, dateFilterr,drawTime) => {
       const endDate = new Date(`${dateFilterr}T23:59:59.999Z`);
       matchStage.date = { $gte: startDate, $lte: endDate };
     }
-
-    // console.log("ms", matchStage);
+    if (drawTime) {
+      matchStage.drawTime = drawTime;
+    }
 
     let aggregationPipeline = [
       {
@@ -271,7 +302,11 @@ const listEntityDB = async (tokenNumberr, dateFilterr,drawTime) => {
 //   }
 // };
 
+<<<<<<< HEAD
 const entityCumulativeDB = async ( tokenNumberr,dateFilter,drawTime) => {
+=======
+const entityCumulativeDB = async (tokenNumberr, dateFilter, drawTime) => {
+>>>>>>> e8e34432ac48fe6af1c4c1d1b5cddd915147b3c5
   try {
     let tokenNumber = parseInt(tokenNumberr);
 
@@ -288,17 +323,18 @@ const entityCumulativeDB = async ( tokenNumberr,dateFilter,drawTime) => {
       const endDate = new Date(`${dateFilter}T23:59:59.999Z`);
       matchStage.date = { $gte: startDate, $lte: endDate };
     }
-    console.log('ms',matchStage);
+    if (condition) {
+      matchStage.drawTime = drawTime;
+    }
+    console.log("ms", matchStage);
     const pipeline = [
-      // Match documents based on filter parameters
       {
         $match: matchStage,
       },
-      // Group by tokenNumber
       {
         $group: {
-          _id: '$tokenNumber',
-          total: { $sum: '$count' },
+          _id: "$tokenNumber",
+          total: { $sum: "$count" },
         },
       },
       {
@@ -313,10 +349,6 @@ const entityCumulativeDB = async ( tokenNumberr,dateFilter,drawTime) => {
     throw error;
   }
 };
-
-  // MongoDB aggregation pipeline to calculate cumulative counts
-   
-
 
 const rangeSetupDB = async (startRange, endRange, color) => {
   try {
@@ -334,7 +366,7 @@ const rangeSetupDB = async (startRange, endRange, color) => {
 const drawTimeSetupDB = async (drawTime) => {
   try {
     const newdrawTime = new DrawTimeSchema({
-      drawTime
+      drawTime,
     });
     const saveddrawTime = await newdrawTime.save();
     return saveddrawTime;
@@ -477,5 +509,5 @@ module.exports = {
   drawTimeSetupDB,
   deleteDrawTimeDB,
   deleteColourSettingsDB,
-  deleteUserDB
+  deleteUserDB,
 };
