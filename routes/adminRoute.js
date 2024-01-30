@@ -1,5 +1,6 @@
 const express = require("express");
 const adminRoute = express.Router();
+// const { adminAuthMiddleware } = require("../middleware/authMiddleware");
 const {
   agentRegister,
   agentList,
@@ -17,9 +18,8 @@ const {
   drawTimeSetup,
   deleteDrawTime,
   deleteColourSettings,
-  deleteUser
+  deleteUser,
 } = require("../controllers/adminController");
-const { adminAuthMiddleware } = require("../middleware/authMiddleware");
 
 adminRoute.get("/agent-list/:filter?/:pagenumber?", agentList);
 adminRoute.post("/agent-register", agentRegister);
@@ -50,7 +50,5 @@ adminRoute.post("/delete-user", deleteUser);
 adminRoute.post("/delete-colour-settings", deleteColourSettings);
 
 adminRoute.get("/list-entity-cumulative", entityCumulative);
-
-
 
 module.exports = adminRoute;

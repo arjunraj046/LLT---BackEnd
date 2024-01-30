@@ -17,7 +17,8 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
+    "luxon": "^3.4.4",
     "mongoose": "^8.0.3",
-    "update": "^0.7.4"
+    "update": "^0.4.2"
   }
 }
