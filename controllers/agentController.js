@@ -1,5 +1,5 @@
 const {
-  addagentDataDB,
+  addAgentDataDB,
   getAgentEntity,
   deleteEntity,
 } = require("../database/repository/agentRepository");
@@ -31,7 +31,7 @@ const addEntity = async (req, res) => {
     // console.log(_id, tokenSets);
 
     if (user) {
-      let result = await addagentDataDB(userId, drawTime, Date, tokemList);
+      let result = await addAgentDataDB(userId, drawTime, Date, tokemList);
       console.log(result);
       res.status(200).json({ status: "success", result });
     } else {

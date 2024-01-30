@@ -6,7 +6,7 @@ const { ObjectId } = mongoose.Types;
 // const UserData = require("../models/TokenSchema");
 const Order = require("../models/OrderSchema");
 const Token = require("../models/TokenSchema");
-// userId,  drawTime, Date, tokemList = array
+
 const addAgentDataDB = async (userId, drawTime, date, tokenList) => {
   try {
     const userOrder = new Order({
@@ -134,4 +134,4 @@ const deleteEntity = async (id) => {
   }
 };
 
-module.exports = { addagentDataDB, getAgentEntity, deleteEntity };
+module.exports = { addAgentDataDB, getAgentEntity, deleteEntity };
