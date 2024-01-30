@@ -118,6 +118,7 @@ const agentStatusChange = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 // const listEntity = async (req, res) => {
 //   try {
 //     console.log("innn");
@@ -144,6 +145,7 @@ const agentStatusChange = async (req, res) => {
 //       res.status(500).json({ error: error.message });
 //     }
 // };
+
 const listEntitySearch = async (req, res) => {
   try {
     const { tokenNumber, dateFilter, drawTime } = req.query;

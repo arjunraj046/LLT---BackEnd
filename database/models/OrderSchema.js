@@ -7,26 +7,14 @@ const orderSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  tokenList: [
-    {
-      tokenNumber: {
-        type: String,
-        required: true,
-      },
-      count: {
-        type: String,
-        required: true,
-      },
-      drawTime: {
-        type: String,
-        required: true,
-      },
-      date: {
-        type: Date,
-        default: Date.now,
-      },
-    },
-  ],
+  date: {
+    type: Date,
+    required: true,
+  },
+  drawTime: {
+    type: String,
+    required: true,
+  },
 });
 
 const Order = mongoose.model("Order", orderSchema);
