@@ -22,13 +22,13 @@ const { getAgent } = require("../database/repository/authRepository");
 
 const addEntity = async (req, res) => {
   try {
-    console.log("hai add", req.body);
+    console.log("---------------------------------------", req.body);
 
-    const { _id, values: { tokenSets } } = req.body;
-    // let id = "658a603d365ed61de6f39827";
-    // let date = Date.now(); // Fixed typo
-    // let tokenNumber = 32;
-    // let count = 40;
+    const {
+      _id,
+      values: { tokenSets },
+    } = req.body;
+
     let user = await getAgent(_id);
 
     if (user) {
@@ -38,9 +38,9 @@ const addEntity = async (req, res) => {
         tokenNumber,
         count,
         drawTime
-      ); // Renamed variable to prevent conflict
+      ); 
       console.log(result);
-      res.status(200).json({ status: "success", result }); // Sending result in response
+      res.status(200).json({ status: "success", result }); 
     } else {
       return res
         .status(404)
