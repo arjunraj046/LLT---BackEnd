@@ -1,20 +1,18 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
 const tokenSchema = new mongoose.Schema({
   tokenNumber: {
     type: String,
     required: true,
   },
+  orderId: {
+    type: Schema.Types.ObjectId,
+    ref: "Orders", 
+    required: true,
+  },
   count: {
     type: String,
-    required: true,
-  },
-  drawTime: {
-    type: String,
-    required: true,
-  },
-  date: {
-    type: Date,
     required: true,
   },
 });

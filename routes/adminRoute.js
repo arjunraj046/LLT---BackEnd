@@ -20,10 +20,6 @@ const {
   deleteColourSettings,
   deleteUser,
 } = require("../controllers/adminController");
-<<<<<<< HEAD
-=======
-// const { adminAuthMiddleware } = require("../middleware/authMiddleware");
->>>>>>> e8e34432ac48fe6af1c4c1d1b5cddd915147b3c5
 
 adminRoute.get("/agent-list/:filter?/:pagenumber?", agentList);
 adminRoute.post("/agent-register", agentRegister);
@@ -43,8 +39,4 @@ adminRoute.post("/delete-user", deleteUser);
 adminRoute.post("/delete-colour-settings", deleteColourSettings);
 adminRoute.get("/list-entity-cumulative", entityCumulative);
 
-<<<<<<< HEAD
 module.exports = adminRoute;
-=======
-module.exports = adminRoute;
->>>>>>> e8e34432ac48fe6af1c4c1d1b5cddd915147b3c5

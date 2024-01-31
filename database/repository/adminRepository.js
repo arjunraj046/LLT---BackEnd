@@ -1,5 +1,5 @@
 const User = require("../models/User");
-const UserData = require("../models/UserData");
+const OrderSchema = require("../models/OrderSchema");
 const RangeSchema = require("../models/RangeSchema");
 const DrawTimeSchema = require("../models/DrawTimeSchema");
 const mongoose = require("mongoose");
@@ -60,17 +60,11 @@ const agentProfileEditDB = async (
   name,
   userName,
   email,
-<<<<<<< HEAD
-  contactNumber,status
+  contactNumber,
+  status
 ) => {
   try {
-    const updateUserinfo = { name, userName, email, contactNumber ,status};
-=======
-  contactNumber
-) => {
-  try {
-    const updateUserinfo = { name, userName, email, contactNumber };
->>>>>>> e8e34432ac48fe6af1c4c1d1b5cddd915147b3c5
+    const updateUserinfo = { name, userName, email, contactNumber, status };
     const updatedAgent = await User.findByIdAndUpdate(_id, updateUserinfo, {
       new: true,
     });
@@ -115,11 +109,7 @@ const changeAgentStatusDB = async (id) => {
     throw error;
   }
 };
-<<<<<<< HEAD
-const listEntityDB = async (tokenNumberr, dateFilterr,drawTime) => {
-=======
 const listEntityDB = async (tokenNumberr, dateFilterr, drawTime) => {
->>>>>>> e8e34432ac48fe6af1c4c1d1b5cddd915147b3c5
   try {
     console.log("inn db", dateFilterr);
     let tokenNumber = parseInt(tokenNumberr);
@@ -171,7 +161,7 @@ const listEntityDB = async (tokenNumberr, dateFilterr, drawTime) => {
           email: "$data.email",
           userRole: "$data.userRole",
           status: "$data.status",
-          drawTime:"$drawTime",
+          drawTime: "$drawTime",
         },
       },
       {
@@ -302,11 +292,7 @@ const listEntityDB = async (tokenNumberr, dateFilterr, drawTime) => {
 //   }
 // };
 
-<<<<<<< HEAD
-const entityCumulativeDB = async ( tokenNumberr,dateFilter,drawTime) => {
-=======
 const entityCumulativeDB = async (tokenNumberr, dateFilter, drawTime) => {
->>>>>>> e8e34432ac48fe6af1c4c1d1b5cddd915147b3c5
   try {
     let tokenNumber = parseInt(tokenNumberr);
 
@@ -339,8 +325,7 @@ const entityCumulativeDB = async (tokenNumberr, dateFilter, drawTime) => {
       },
       {
         $sort: { total: -1 },
-      }
-      
+      },
     ];
 
     const results = await UserData.aggregate(pipeline);
@@ -383,22 +368,23 @@ const rangeListDB = async () => {
     throw error;
   }
 };
-const { DateTime } = require('luxon');
+const { DateTime } = require("luxon");
 
 const drawTimeRangeListDB = async () => {
   try {
     const currentDateTime = new Date();
-    console.log('Current Time:', currentDateTime);
+    console.log("Current Time:", currentDateTime);
 
-    const currentMinutes = currentDateTime.getHours() * 60 + currentDateTime.getMinutes();
+    const currentMinutes =
+      currentDateTime.getHours() * 60 + currentDateTime.getMinutes();
 
     const drawTimeList = await DrawTimeSchema.aggregate([
       {
         $addFields: {
           drawTimeMinutes: {
             $add: [
-              { $multiply: [{ $toInt: { $substr: ['$drawTime', 0, 2] } }, 60] }, // hours to minutes
-              { $toInt: { $substr: ['$drawTime', 3, 2] } }, // add minutes
+              { $multiply: [{ $toInt: { $substr: ["$drawTime", 0, 2] } }, 60] }, // hours to minutes
+              { $toInt: { $substr: ["$drawTime", 3, 2] } }, // add minutes
             ],
           },
         },
@@ -407,26 +393,24 @@ const drawTimeRangeListDB = async () => {
         $addFields: {
           timeDifference: {
             $cond: {
-              if: { $gte: ['$drawTimeMinutes', currentMinutes] },
-              then: { $subtract: ['$drawTimeMinutes', currentMinutes] },
-              else: { $add: [1440, '$drawTimeMinutes'] }, // add 24 hours if the draw time is earlier
+              if: { $gte: ["$drawTimeMinutes", currentMinutes] },
+              then: { $subtract: ["$drawTimeMinutes", currentMinutes] },
+              else: { $add: [1440, "$drawTimeMinutes"] }, // add 24 hours if the draw time is earlier
             },
           },
         },
       },
       { $sort: { timeDifference: 1 } },
-      { $project: { _id: 1, drawTime: 1 } }
+      { $project: { _id: 1, drawTime: 1 } },
     ]);
 
-    console.log('Sorted Draw Times:', drawTimeList);
+    console.log("Sorted Draw Times:", drawTimeList);
 
     return drawTimeList;
   } catch (error) {
     throw error;
   }
 };
-
-
 
 const agentDataDB = async (id) => {
   try {
@@ -479,7 +463,7 @@ const deleteUserDB = async (id) => {
     console.log("deleteUserDB in db ", id);
     const _id = new mongoose.Types.ObjectId(id);
     console.log(_id);
-    
+
     // Add await here
     const tickets = await UserData.deleteMany({ userId: _id });
     console.log(tickets);
@@ -491,7 +475,6 @@ const deleteUserDB = async (id) => {
     throw error;
   }
 };
-
 
 module.exports = {
   agentRegisterDB,

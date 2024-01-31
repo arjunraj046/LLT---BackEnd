@@ -3,19 +3,43 @@ const { ObjectId } = mongoose.Types;
 
 // Assuming you have defined the UserData model somewhere before using it in addagentDataDB function
 // const UserData = mongoose.model('UserData');
-const UserData = require("../models/TokenSchema");
+// const UserData = require("../models/TokenSchema");
+const Order = require("../models/OrderSchema");
+const Token = require("../models/TokenSchema");
 
-const addagentDataDB = async (id, date, tokenNumber, count,drawTime) => {
+const addAgentDataDB = async (userId, drawTime, date, tokenList) => {
   try {
-    const userData = new UserData({
-      userId: new ObjectId(id),
-      tokenNumber: tokenNumber,
-      count: count,
+    const userOrder = new Order({
+      userId: new ObjectId(userId),
       date: date,
-      drawTime:drawTime
+      drawTime: drawTime,
     });
 
-    const savedUserData = await userData.save();
+    console.log("userOrder is here", userOrder);
+
+    const savedUserData = await userOrder
+      .save()
+      .then((res) => {
+        console.log("Order saved successfully:", res);
+
+        const tokenPromises = tokenList.map(async (token) => {
+          const newToken = new Token({
+            tokenNumber: token.tokenNumber,
+            count: token.count,
+            orderId: res._id,
+          });
+
+          return await newToken.save();
+        });
+
+        // Wait for all token saves to complete
+        return Promise.all(tokenPromises);
+      })
+      .catch((error) => {
+        console.error("Error saving order:", error);
+        throw error;
+      });
+
     return savedUserData;
   } catch (error) {
     throw error;
@@ -64,16 +88,16 @@ const getAgentEntity = async (id) => {
 
     const list = await UserData.aggregate([
       {
-        $match: { userId: _id }
+        $match: { userId: _id },
       },
       {
         $lookup: {
-          from: 'users',
-          localField: 'userId',
-          foreignField: '_id',
-          as: 'result'
-        }
-      }
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "result",
+        },
+      },
     ]);
 
     if (!list || list.length === 0) {
@@ -84,7 +108,7 @@ const getAgentEntity = async (id) => {
     const username = list[0].result[0].userName;
 
     // Flatten the structure and include userName in each document
-    const modifiedList = list.map(item => {
+    const modifiedList = list.map((item) => {
       const { result, ...rest } = item;
       return { ...rest, userName: username };
     });
@@ -96,8 +120,6 @@ const getAgentEntity = async (id) => {
     throw error; // Re-throw the error to be handled by the caller
   }
 };
-
-
 
 const deleteEntity = async (id) => {
   try {
@@ -112,4 +134,4 @@ const deleteEntity = async (id) => {
   }
 };
 
-module.exports = { addagentDataDB, getAgentEntity, deleteEntity };
+module.exports = { addAgentDataDB, getAgentEntity, deleteEntity };

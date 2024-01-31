@@ -20,6 +20,7 @@ const { passwordHashing, passwordComparing } = require("../services/hasinging");
 // const { getAgent } = require("../database/repository/authRepository");
 
 const agentRegister = async (req, res) => {
+  
   try {
     const { name, userName, contactNumber, email, password } = req.body;
     const hashedPassword = await passwordHashing(password);
@@ -85,7 +86,6 @@ const editPasswordAgent = async (req, res) => {
   try {
     const { _id, password } = req.body;
     // console.log(req.body);
-<<<<<<< HEAD
     // const agentDetails = await agentDataDB(_id);
     // const pass = await passwordComparing(
     //   agentDetails.password,
@@ -104,26 +104,6 @@ const editPasswordAgent = async (req, res) => {
     // } else {
     //   return res.status(401).json({ error: "Password is incorrect!" });
     // }
-=======
-    const agentDetails = await agentDataDB(_id);
-    const pass = await passwordComparing(
-      agentDetails.password,
-      previousPassword
-    );
-    if (pass) {
-      const hashPassword = await passwordHashing(password);
-      const data = await agentPasswordChangeDB(_id, hashPassword);
-      console.log(data);
-      console.log("success");
-      res.status(200).json({
-        status: "success",
-        message: "Agent password change successfully",
-        data,
-      });
-    } else {
-      return res.status(401).json({ error: "Password is incorrect!" });
-    }
->>>>>>> e8e34432ac48fe6af1c4c1d1b5cddd915147b3c5
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -138,6 +118,7 @@ const agentStatusChange = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 // const listEntity = async (req, res) => {
 //   try {
 //     console.log("innn");
@@ -164,10 +145,10 @@ const agentStatusChange = async (req, res) => {
 //       res.status(500).json({ error: error.message });
 //     }
 // };
+
 const listEntitySearch = async (req, res) => {
   try {
     const { tokenNumber, dateFilter, drawTime } = req.query;
-<<<<<<< HEAD
 
     console.log("Token Number:", tokenNumber);
     console.log("Date Filter:", dateFilter);
@@ -176,13 +157,6 @@ const listEntitySearch = async (req, res) => {
     // Call the function to fetch data from the database with tokenNumber and dateFilter
     const response = await listEntityDB(tokenNumber, dateFilter, drawTime);
 
-=======
-    console.log("Token Number:", tokenNumber);
-    console.log("Date Filter:", dateFilter);
-    console.log("draw Time:", drawTime);
-
-    const response = await listEntityDB(tokenNumber, dateFilter, drawTime);
->>>>>>> e8e34432ac48fe6af1c4c1d1b5cddd915147b3c5
     if (response && response.length > 0) {
       const totalCount = response[0].totalCount;
       const data = response[0].data;
@@ -206,25 +180,16 @@ const listEntitySearch = async (req, res) => {
 const entityCumulative = async (req, res) => {
   try {
     const { tokenNumber, dateFilter, drawTime } = req.query;
-<<<<<<< HEAD
 
     console.log("Token Number:", tokenNumber);
     console.log("Date Filter:", dateFilter);
-=======
-    console.log("Token Number :", tokenNumber);
-    console.log("Date Filter :", dateFilter);
-    console.log("draw Time :", drawTime);
->>>>>>> e8e34432ac48fe6af1c4c1d1b5cddd915147b3c5
     const response = await entityCumulativeDB(
       tokenNumber,
       dateFilter,
       drawTime
     );
-<<<<<<< HEAD
     // let totalCount = response[0].totalCount;
     // let data = response[0].data;
-=======
->>>>>>> e8e34432ac48fe6af1c4c1d1b5cddd915147b3c5
     console.log("res", response);
     res.status(200).json({ status: "success", response });
   } catch (error) {
@@ -328,8 +293,4 @@ module.exports = {
   deleteDrawTime,
   deleteColourSettings,
   deleteUser,
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> e8e34432ac48fe6af1c4c1d1b5cddd915147b3c5
