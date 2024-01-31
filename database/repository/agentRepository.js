@@ -81,17 +81,9 @@ const getAgentEntity = async (id) => {
 
     if (!list || list.length === 0) {
       return null;
+    } else {
+      return list;
     }
-
-    const username = list[0].result[0].userName;
-
-    const modifiedList = list.map((item) => {
-      const { result, ...rest } = item;
-      return { ...rest, userName: username };
-    });
-
-    console.log(modifiedList);
-    return modifiedList;
   } catch (error) {
     console.error("Error fetching agent entities:", error);
     throw error;
@@ -118,7 +110,15 @@ const getAgentOrders = async (id) => {
         },
       },
     ]);
-  } catch (error) {}
+    if (!list || list.length === 0) {
+      return null;
+    } else {
+      return list;
+    }
+  } catch (error) {
+    console.error("Error fetching agent entities:", error);
+    throw error;
+  }
 };
 
 const deleteEntity = async (orderId) => {
