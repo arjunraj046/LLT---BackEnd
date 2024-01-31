@@ -3,16 +3,16 @@ const Schema = mongoose.Schema;
 
 const tokenSchema = new mongoose.Schema({
   tokenNumber: {
-    type: String,
+    type: Number,
     required: true,
   },
   orderId: {
     type: Schema.Types.ObjectId,
-    ref: "Orders", 
+    ref: "Orders",
     required: true,
   },
   count: {
-    type: String,
+    type: Number,
     required: true,
   },
 });
