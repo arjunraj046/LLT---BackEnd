@@ -24,14 +24,13 @@ const addEntity = async (req, res) => {
   try {
     console.log("---------------------------------------", req.body);
 
-    const { userId, drawTime, Date, tokemList } = req.body;
+    const { _id, drawTime, date, tokenSets } = req.body;
 
-    let user = await getAgent(userId);
-    console.log(user);
-    // console.log(_id, tokenSets);
+    let user = await getAgent(_id);
+    console.log("user", user);
 
     if (user) {
-      let result = await addAgentDataDB(userId, drawTime, Date, tokemList);
+      let result = await addAgentDataDB(_id, drawTime, date, tokenSets);
       console.log(result);
       res.status(200).json({ status: "success", result });
     } else {
