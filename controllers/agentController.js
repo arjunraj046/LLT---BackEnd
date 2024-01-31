@@ -22,7 +22,7 @@ const { getAgent } = require("../database/repository/authRepository");
 
 const addEntity = async (req, res) => {
   try {
-    console.log("---------------------------------------", req.body);
+    console.log("req.body", req.body);
 
     const { _id, drawTime, date, tokenSets } = req.body;
 
