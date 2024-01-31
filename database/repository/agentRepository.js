@@ -135,4 +135,4 @@ const deleteEntity = async (orderId) => {
   }
 };
 
-module.exports = { addAgentDataDB, getAgentEntity, deleteEntity };
+module.exports = { addAgentDataDB, getAgentEntity,getAgentOrders, deleteEntity };
