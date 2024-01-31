@@ -2,6 +2,7 @@ const {
   addAgentDataDB,
   getAgentEntity,
   deleteEntity,
+  getAgentOrders,
 } = require("../database/repository/agentRepository");
 const { getAgent } = require("../database/repository/authRepository");
 
@@ -58,6 +59,20 @@ const listEntity = async (req, res) => {
   }
 };
 
+const listOrder = async (req, res) => {
+  try {
+    console.log("agent", req.body);
+    const { _id } = req.body;
+    const listOrder = await getAgentOrders(_id);
+    if (listOrder == null) {
+      res.status(500).json({ error: error.message });
+    }
+    res.status(200).json({ status: "success", listOrder });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 const deleteEntityAgent = async (req, res) => {
   try {
     console.log("deleteagent", req.body);
@@ -70,4 +85,4 @@ const deleteEntityAgent = async (req, res) => {
   }
 };
 
-module.exports = { addEntity, listEntity, deleteEntityAgent };
+module.exports = { addEntity, listEntity,listOrder, deleteEntityAgent };
