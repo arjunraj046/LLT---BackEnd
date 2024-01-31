@@ -177,6 +177,7 @@ const listEntitySearch = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 const entityCumulative = async (req, res) => {
   try {
     const { tokenNumber, dateFilter, drawTime } = req.query;
@@ -196,6 +197,7 @@ const entityCumulative = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 const rangeSetup = async (req, res) => {
   try {
     const { startRange, endRange, color } = req.body;
@@ -205,6 +207,7 @@ const rangeSetup = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 const drawTimeSetup = async (req, res) => {
   try {
     const { time } = req.body;
@@ -214,6 +217,7 @@ const drawTimeSetup = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 const rangeList = async (req, res) => {
   try {
     console.log("Rang list");
@@ -225,6 +229,7 @@ const rangeList = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 const drawTimeRangeList = async (req, res) => {
   try {
     console.log("Rang list");
@@ -236,6 +241,7 @@ const drawTimeRangeList = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 const deleteEntityAdmin = async (req, res) => {
   try {
     console.log("agent", req.body);
@@ -246,6 +252,7 @@ const deleteEntityAdmin = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 const deleteDrawTime = async (req, res) => {
   try {
     const { id } = req.body;
@@ -256,6 +263,7 @@ const deleteDrawTime = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 const deleteColourSettings = async (req, res) => {
   try {
     const { id } = req.body;
@@ -266,6 +274,7 @@ const deleteColourSettings = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 const deleteUser = async (req, res) => {
   try {
     const { id } = req.body;
