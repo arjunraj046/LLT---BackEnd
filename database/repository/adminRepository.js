@@ -1,9 +1,12 @@
 const User = require("../models/User");
-const OrderSchema = require("../models/OrderSchema");
+// const OrderSchema = require("../models/OrderSchema");
 const RangeSchema = require("../models/RangeSchema");
 const DrawTimeSchema = require("../models/DrawTimeSchema");
 const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Types;
+// const { DateTime } = require("luxon");
+const Order = require("../models/OrderSchema");
+const Token = require("../models/TokenSchema");
 
 const agentRegisterDB = async (
   name,
@@ -112,7 +115,7 @@ const changeAgentStatusDB = async (id) => {
 
 const listEntityDB = async (tokenNumberr, dateFilterr, drawTime) => {
   try {
-    console.log("inn db", dateFilterr);
+    console.log("inn db", dateFilterr, drawTime);
     let tokenNumber = parseInt(tokenNumberr);
 
     let matchStage = {};
@@ -192,7 +195,77 @@ const listEntityDB = async (tokenNumberr, dateFilterr, drawTime) => {
       },
     ];
 
-    const list = await UserData.aggregate(aggregationPipeline);
+    const list = await Order.aggregate(aggregationPipeline);
+
+    console.log(list);
+    if (!list) return null;
+
+    return list;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const listOrderDB = async (tokenNumberr, dateFilterr, drawTime) => {
+  try {
+    console.log("inn db", dateFilterr, drawTime);
+    let tokenNumber = parseInt(tokenNumberr);
+
+    let matchStage = {};
+
+    if (tokenNumber) {
+      matchStage.tokenNumber = tokenNumber;
+    }
+    if (drawTime) {
+      matchStage.drawTime = drawTime;
+    }
+    if (dateFilterr) {
+      const startDate = new Date(`${dateFilterr}T00:00:00.000Z`);
+      const endDate = new Date(`${dateFilterr}T23:59:59.999Z`);
+      matchStage.date = { $gte: startDate, $lte: endDate };
+    }
+    if (drawTime) {
+      matchStage.drawTime = drawTime;
+    }
+
+    let aggregationPipeline = [
+      {
+        $lookup: {
+          from: "tokens",
+          localField: "_id",
+          foreignField: "orderId",
+          as: "token",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          userId: 1,
+          date: 1,
+          drawTime: 1,
+          userFullName: "$user.name",
+          username: "$user.userName",
+          userEmail: "$user.email",
+          userContactNumber: "$user.contactNumber",
+          token: 1,
+        },
+      },
+    ];
+
+    const list = await Order.aggregate(aggregationPipeline);
 
     console.log(list);
     if (!list) return null;
@@ -220,26 +293,60 @@ const entityCumulativeDB = async (tokenNumberr, dateFilter, drawTime) => {
       const endDate = new Date(`${dateFilter}T23:59:59.999Z`);
       matchStage.date = { $gte: startDate, $lte: endDate };
     }
-    if (condition) {
+    if (drawTime) {
       matchStage.drawTime = drawTime;
     }
+
     console.log("ms", matchStage);
+
     const pipeline = [
       {
-        $match: matchStage,
+        $lookup: {
+          from: "orders",
+          localField: "orderId",
+          foreignField: "_id",
+          as: "order",
+        },
+      },
+      {
+        $unwind: {
+          path: "$order",
+        },
       },
       {
         $group: {
           _id: "$tokenNumber",
-          total: { $sum: "$count" },
+          total: {
+            $sum: {
+              $toInt: "$count",
+            },
+          },
+          orders: {
+            $push: "$order",
+          },
         },
       },
       {
-        $sort: { total: -1 },
+        $unwind: {
+          path: "$orders",
+        },
+      },
+      {
+        $project: {
+          tokenNumber: "$_id",
+          total: "$total",
+          date: "$orders.date",
+          drawtime: "$orders.drawtime",
+        },
+      },
+      {
+        $sort: {
+          tokenNumber: 1,
+        },
       },
     ];
 
-    const results = await UserData.aggregate(pipeline);
+    const results = await Token.aggregate(pipeline);
     return results;
   } catch (error) {
     throw error;
@@ -279,7 +386,6 @@ const rangeListDB = async () => {
     throw error;
   }
 };
-const { DateTime } = require("luxon");
 
 const drawTimeRangeListDB = async () => {
   try {
@@ -294,8 +400,8 @@ const drawTimeRangeListDB = async () => {
         $addFields: {
           drawTimeMinutes: {
             $add: [
-              { $multiply: [{ $toInt: { $substr: ["$drawTime", 0, 2] } }, 60] }, // hours to minutes
-              { $toInt: { $substr: ["$drawTime", 3, 2] } }, // add minutes
+              { $multiply: [{ $toInt: { $substr: ["$drawTime", 0, 2] } }, 60] },
+              { $toInt: { $substr: ["$drawTime", 3, 2] } },
             ],
           },
         },
@@ -394,6 +500,7 @@ module.exports = {
   changeAgentStatusDB,
   agentPasswordChangeDB,
   listEntityDB,
+  listOrderDB,
   entityCumulativeDB,
   rangeSetupDB,
   rangeListDB,
