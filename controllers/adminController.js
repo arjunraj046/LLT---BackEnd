@@ -15,12 +15,12 @@ const {
   deleteDrawTimeDB,
   deleteColourSettingsDB,
   deleteUserDB,
+  listOrderDB,
 } = require("../database/repository/adminRepository");
 const { passwordHashing, passwordComparing } = require("../services/hasinging");
 // const { getAgent } = require("../database/repository/authRepository");
 
 const agentRegister = async (req, res) => {
-  
   try {
     const { name, userName, contactNumber, email, password } = req.body;
     const hashedPassword = await passwordHashing(password);
@@ -178,6 +178,35 @@ const listEntitySearch = async (req, res) => {
   }
 };
 
+const listOrderSearch = async (req, res) => {
+  try {
+    const { tokenNumber, dateFilter, drawTime } = req.query;
+
+    console.log("Token Number:", tokenNumber);
+    console.log("Date Filter:", dateFilter);
+    console.log("drawTime:", drawTime);
+
+    // Call the function to fetch data from the database with tokenNumber and dateFilter
+    const response = await listOrderDB(tokenNumber, dateFilter, drawTime);
+
+    if (response && response.length > 0) {
+    
+      res.status(200).json({
+        status: "success",
+        list: response
+      });
+    } else {
+      res.status(200).json({
+        status: "success",
+        list: [],
+        totalCount: 0,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 const entityCumulative = async (req, res) => {
   try {
     const { tokenNumber, dateFilter, drawTime } = req.query;
@@ -292,6 +321,7 @@ module.exports = {
   editAgent,
   agentStatusChange,
   listEntitySearch,
+  listOrderSearch,
   rangeSetup,
   rangeList,
   editPasswordAgent,
