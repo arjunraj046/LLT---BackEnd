@@ -131,9 +131,6 @@ const listEntityDB = async (tokenNumberr, dateFilterr, drawTime) => {
       const endDate = new Date(`${dateFilterr}T23:59:59.999Z`);
       matchStage.date = { $gte: startDate, $lte: endDate };
     }
-    if (drawTime) {
-      matchStage.drawTime = drawTime;
-    }
 
     let aggregationPipeline = [
       {
@@ -169,7 +166,7 @@ const listEntityDB = async (tokenNumberr, dateFilterr, drawTime) => {
           date: 1,
           drawTime: 1,
           tokenId: "$token._id",
-          tokenNumber: "$token.tokenNumber",
+          tokenNumber: { $toInt: "$token.tokenNumber" },
           tokenCount: "$token.count",
           userFullName: "$user.name",
           username: "$user.userName",
@@ -213,12 +210,12 @@ const listOrderDB = async (tokenNumberr, dateFilterr, drawTime) => {
 
     let matchStage = {};
 
-    if (tokenNumber) {
-      matchStage.tokenNumber = tokenNumber;
-    }
-    if (drawTime) {
-      matchStage.drawTime = drawTime;
-    }
+    // if (tokenNumber) {
+    //   matchStage.tokenNumber = tokenNumber;
+    // }
+    // if (drawTime) {
+    //   matchStage.drawTime = drawTime;
+    // }
     if (dateFilterr) {
       const startDate = new Date(`${dateFilterr}T00:00:00.000Z`);
       const endDate = new Date(`${dateFilterr}T23:59:59.999Z`);
@@ -263,6 +260,9 @@ const listOrderDB = async (tokenNumberr, dateFilterr, drawTime) => {
           token: 1,
         },
       },
+      {
+        $match: matchStage,
+      },
     ];
 
     const list = await Order.aggregate(aggregationPipeline);
@@ -292,9 +292,6 @@ const entityCumulativeDB = async (tokenNumberr, dateFilter, drawTime) => {
       const startDate = new Date(`${dateFilter}T00:00:00.000Z`);
       const endDate = new Date(`${dateFilter}T23:59:59.999Z`);
       matchStage.date = { $gte: startDate, $lte: endDate };
-    }
-    if (drawTime) {
-      matchStage.drawTime = drawTime;
     }
 
     console.log("ms", matchStage);
@@ -343,6 +340,9 @@ const entityCumulativeDB = async (tokenNumberr, dateFilter, drawTime) => {
         $sort: {
           tokenNumber: 1,
         },
+      },
+      {
+        $match: matchStage,
       },
     ];
 
