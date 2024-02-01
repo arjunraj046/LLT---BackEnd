@@ -20,8 +20,8 @@ const addAgentDataDB = async (userId, drawTime, date, tokenList) => {
 
         const tokenPromises = tokenList.map(async (token) => {
           const newToken = new Token({
-            tokenNumber: token.tokenNumber,
-            count: token.count,
+            tokenNumber: parseInt(token.tokenNumber),
+            count: parseInt(token.count),
             orderId: res._id,
           });
 
@@ -135,4 +135,9 @@ const deleteEntity = async (orderId) => {
   }
 };
 
-module.exports = { addAgentDataDB, getAgentEntity,getAgentOrders, deleteEntity };
+module.exports = {
+  addAgentDataDB,
+  getAgentEntity,
+  getAgentOrders,
+  deleteEntity,
+};

@@ -109,6 +109,7 @@ const changeAgentStatusDB = async (id) => {
     throw error;
   }
 };
+
 const listEntityDB = async (tokenNumberr, dateFilterr, drawTime) => {
   try {
     console.log("inn db", dateFilterr);
@@ -133,51 +134,60 @@ const listEntityDB = async (tokenNumberr, dateFilterr, drawTime) => {
 
     let aggregationPipeline = [
       {
-        $match: matchStage,
+        $lookup: {
+          from: "tokens",
+          localField: "_id",
+          foreignField: "orderId",
+          as: "token",
+        },
       },
       {
         $lookup: {
           from: "users",
           localField: "userId",
           foreignField: "_id",
-          as: "data",
+          as: "user",
         },
       },
       {
         $unwind: {
-          path: "$data",
+          path: "$token",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
         },
       },
       {
         $project: {
           _id: 1,
           userId: 1,
-          tokenNumber: 1,
-          count: 1,
           date: 1,
-          name: "$data.name",
-          userName: "$data.userName",
-          contactNumber: "$data.contactNumber",
-          email: "$data.email",
-          userRole: "$data.userRole",
-          status: "$data.status",
-          drawTime: "$drawTime",
+          drawTime: 1,
+          tokenId: "$token._id",
+          tokenNumber: "$token.tokenNumber",
+          tokenCount: "$token.count",
+          userFullName: "$user.name",
+          username: "$user.userName",
+          userEmail: "$user.email",
+          userContactNumber: "$user.contactNumber",
         },
+      },
+      {
+        $match: matchStage,
       },
       {
         $group: {
           _id: null,
           totalCount: {
-            $sum: "$count",
+            $sum: {
+              $toInt: "$tokenCount",
+            },
           },
-          data: { $push: "$$ROOT" },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          totalCount: 1,
-          data: 1,
+          data: {
+            $push: "$$ROOT",
+          },
         },
       },
     ];
@@ -192,105 +202,6 @@ const listEntityDB = async (tokenNumberr, dateFilterr, drawTime) => {
     throw error;
   }
 };
-
-// const listEntitySearchDB = async (token, dateFilter) => {
-//   try {
-//     let tokenNumber = parseInt(token);
-
-//     let matchStage = {};
-
-//     if (tokenNumber) {
-//       matchStage.tokenNumber = tokenNumber;
-//     }
-
-//     if (dateFilter) {
-//       matchStage.date = {
-//         $gte: new Date(dateFilter),
-//         $lt: new Date(new Date(dateFilter).setHours(23, 59, 59, 999)),
-//       };
-//     }
-
-//     let aggregatePipeline = [
-//       {
-//         $match: matchStage,
-//       },
-//       {
-//         $lookup: {
-//           from: "users",
-//           localField: "userId",
-//           foreignField: "_id",
-//           as: "data",
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$data",
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 1,
-//           userId: 1,
-//           tokenNumber: 1,
-//           count: 1,
-//           date: 1,
-//           name: "$data.name",
-//           userName: "$data.userName",
-//           contactNumber: "$data.contactNumber",
-//           email: "$data.email",
-//           userRole: "$data.userRole",
-//           status: "$data.status",
-//         },
-//       },
-//       {
-//         $group: {
-//           _id: null,
-//           totalCount: {
-//             $sum: "$count",
-//           },
-//           data: {
-//             $push: "$$ROOT",
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           totalCount: 1,
-//           data: 1,
-//         },
-//       },
-//     ];
-
-//     console.log("Aggregate Pipeline:", JSON.stringify(aggregatePipeline, null, 2));
-
-//     const list = await UserData.aggregate(aggregatePipeline);
-
-//     console.log("Aggregate Result:", JSON.stringify(list, null, 2));
-
-//     if (!list || list.length === 0) {
-//       console.error("Error: Aggregate result is undefined or empty");
-//       return { totalCount: 0, data: [] };
-//     }
-
-//     const result = Array.isArray(list) ? list[0] : list;
-
-//     if (!result || !result.data) {
-//       console.error("Error: Aggregate result has an incorrect structure");
-//       console.log("Detailed Error:", JSON.stringify(result, null, 2));
-//       return { totalCount: 0, data: [] };
-//     }
-
-//     const { totalCount, data } = result;
-
-//     console.log("Total Count:", totalCount, "Data:", JSON.stringify(data, null, 2));
-
-//     return { totalCount, data };
-//   } catch (error) {
-//     console.error("Error in listEntitySearchDB:", error);
-//     throw error;
-//   }
-// };
 
 const entityCumulativeDB = async (tokenNumberr, dateFilter, drawTime) => {
   try {
