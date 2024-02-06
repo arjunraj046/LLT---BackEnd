@@ -5,15 +5,16 @@ const Token = require("../models/TokenSchema");
 
 const addAgentDataDB = async (userId, drawTime, date, tokenList) => {
   try {
-    const userOrder = await Order.findOne({ userId: new ObjectId(userId) })
-      .sort({ orderNumber: -1 }) // Sort in descending order
+    const lastOrder = await Order.findOne({ userId: new ObjectId(userId) })
+      .sort({ orderId: -1 }) // Sort in descending order based on orderId
       .limit(1);
 
     let nextOrderNumber = 1;
 
-    if (userOrder) {
-      // If there is a user order, increment it to get the next order number
-      nextOrderNumber = userOrder.orderNumber + 1;
+    if (lastOrder) {
+      // Extract the order number from the orderId and increment it
+      const lastOrderNumber = parseInt(lastOrder.orderId.split('ORD')[1]);
+      nextOrderNumber = lastOrderNumber + 1;
     }
 
     const orderId = `ORD${nextOrderNumber}`;
