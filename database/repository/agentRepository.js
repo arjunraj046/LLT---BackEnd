@@ -5,15 +5,29 @@ const Token = require("../models/TokenSchema");
 
 const addAgentDataDB = async (userId, drawTime, date, tokenList) => {
   try {
-    const userOrder = new Order({
+    const userOrder = await Order.findOne({ userId: new ObjectId(userId) })
+      .sort({ orderNumber: -1 }) // Sort in descending order
+      .limit(1);
+
+    let nextOrderNumber = 1;
+
+    if (userOrder) {
+      // If there is a user order, increment it to get the next order number
+      nextOrderNumber = userOrder.orderNumber + 1;
+    }
+
+    const orderId = `ORD${nextOrderNumber}`;
+
+    const newOrder = new Order({
       userId: new ObjectId(userId),
       date: date,
       drawTime: drawTime,
+      orderId: orderId,
     });
 
-    console.log("userOrder is here", userOrder);
+    console.log("newOrder is here", newOrder);
 
-    const savedUserData = await userOrder
+    const savedUserData = await newOrder
       .save()
       .then((res) => {
         console.log("Order saved successfully:", res);
@@ -40,6 +54,7 @@ const addAgentDataDB = async (userId, drawTime, date, tokenList) => {
     throw error;
   }
 };
+
 
 const getAgentEntity = async (id) => {
   try {
@@ -72,6 +87,7 @@ const getAgentEntity = async (id) => {
           userId: 1,
           date: 1,
           drawTime: 1,
+          orderId:1,
           tokenId: "$token._id",
           tokenNumber: "$token.tokenNumber",
           tokenCount: "$token.count",

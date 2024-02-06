@@ -253,6 +253,7 @@ const listOrderDB = async (tokenNumberr, dateFilterr, drawTime) => {
           userId: 1,
           date: 1,
           drawTime: 1,
+          orderId:1,
           userFullName: "$user.name",
           username: "$user.userName",
           userEmail: "$user.email",
@@ -439,13 +440,26 @@ const agentDataDB = async (id) => {
     throw error;
   }
 };
-const deleteEntityAdminDB = async (id) => {
+// const deleteEntityAdminDB = async (id) => {
+//   try {
+//     console.log("deleteAdminEntity in db ", id);
+//     const _id = new mongoose.Types.ObjectId(id);
+//     console.log(_id);
+//     const deleteItem = await UserData.deleteOne({ _id });
+//     return deleteItem;
+//   } catch (error) {
+//     console.error("Error fetching agent entities:", error);
+//     throw error;
+//   }
+// };
+const deleteEntityAdminDB = async (orderId) => {
   try {
-    console.log("deleteAdminEntity in db ", id);
-    const _id = new mongoose.Types.ObjectId(id);
+    console.log("deleteAgentOrder in db ", orderId);
+    const _id = new mongoose.Types.ObjectId(orderId);
     console.log(_id);
-    const deleteItem = await UserData.deleteOne({ _id });
-    return deleteItem;
+    const deleteTokens = await Token.deleteMany({ orderId: _id });
+    const deleteOrder = await Order.deleteOne({ _id });
+    return { deleteTokens, deleteOrder };
   } catch (error) {
     console.error("Error fetching agent entities:", error);
     throw error;
