@@ -5,16 +5,16 @@ const Token = require("../models/TokenSchema");
 
 const addAgentDataDB = async (userId, drawTime, date, tokenList) => {
   try {
-    const lastOrder = await Order.findOne({ userId: new ObjectId(userId) })
-      .sort({ orderId: -1 }) // Sort in descending order based on orderId
+    // Find the maximum order number across all orders
+    const maxOrder = await Order.findOne()
+      .sort({ orderId: -1 })
       .limit(1);
 
     let nextOrderNumber = 1;
 
-    if (lastOrder) {
-      // Extract the order number from the orderId and increment it
-      const lastOrderNumber = parseInt(lastOrder.orderId.split('ORD')[1]);
-      nextOrderNumber = lastOrderNumber + 1;
+    if (maxOrder) {
+      const maxOrderNumber = parseInt(maxOrder.orderId.replace(/\D/g, ''));
+      nextOrderNumber = maxOrderNumber + 1;
     }
 
     const orderId = `ORD${nextOrderNumber}`;
