@@ -264,6 +264,13 @@ const listOrderDB = async (tokenNumberr, dateFilterr, drawTime) => {
       {
         $match: matchStage,
       },
+      {
+        $addFields: {
+          total: {
+            $sum: "$token.count"
+          }
+        }
+      },
     ];
 
     const list = await Order.aggregate(aggregationPipeline);
