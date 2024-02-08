@@ -126,6 +126,13 @@ const getAgentOrders = async (id) => {
           as: "token",
         },
       },
+      {
+        $addFields: {
+          total: {
+            $sum: "$token.count"
+          }
+        }
+      },
     ]);
     if (!list || list.length === 0) {
       return null;
