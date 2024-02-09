@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const tokenSchema = new mongoose.Schema({
   tokenNumber: {
-    type: Number,
+    type: String,
     required: true,
   },
   orderId: {

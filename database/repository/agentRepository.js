@@ -3,39 +3,25 @@ const { ObjectId } = mongoose.Types;
 const Order = require("../models/OrderSchema");
 const Token = require("../models/TokenSchema");
 
-const addAgentDataDB = async (userId, drawTime, date, tokenList) => {
+const addAgentDataDB = async (userId, drawTime, date, orderId, tokenList) => {
   try {
-    // Find the maximum order number across all orders
-    const maxOrder = await Order.findOne()
-      .sort({ orderId: -1 })
-      .limit(1);
-
-    let nextOrderNumber = 1;
-
-    if (maxOrder) {
-      const maxOrderNumber = parseInt(maxOrder.orderId.replace(/\D/g, ''));
-      nextOrderNumber = maxOrderNumber + 1;
-    }
-
-    const orderId = `ORD${nextOrderNumber}`;
-
     const newOrder = new Order({
       userId: new ObjectId(userId),
       date: date,
       drawTime: drawTime,
-      orderId: orderId,
+      orderId: orderId, 
     });
 
     console.log("newOrder is here", newOrder);
 
     const savedUserData = await newOrder
       .save()
-      .then((res) => {
+      .then(async (res) => {
         console.log("Order saved successfully:", res);
 
         const tokenPromises = tokenList.map(async (token) => {
           const newToken = new Token({
-            tokenNumber: parseInt(token.tokenNumber),
+            tokenNumber: token.tokenNumber,
             count: parseInt(token.count),
             orderId: res._id,
           });
@@ -55,7 +41,6 @@ const addAgentDataDB = async (userId, drawTime, date, tokenList) => {
     throw error;
   }
 };
-
 
 const getAgentEntity = async (id) => {
   try {
@@ -127,10 +112,21 @@ const getAgentOrders = async (id) => {
         },
       },
       {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
         $addFields: {
           total: {
             $sum: "$token.count"
-          }
+          },
+          agent: {
+            $arrayElemAt: ["$user.name", 0], // Assuming there's only one user per order
+          },
         }
       },
     ]);
@@ -159,9 +155,19 @@ const deleteEntity = async (orderId) => {
   }
 };
 
+const getOrderIds = async () => {
+  try {
+    const orderIds = await Order.find();
+    return orderIds;
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   addAgentDataDB,
   getAgentEntity,
   getAgentOrders,
   deleteEntity,
+  getOrderIds,
 };

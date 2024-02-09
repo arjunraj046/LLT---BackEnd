@@ -3,6 +3,7 @@ const {
   getAgentEntity,
   deleteEntity,
   getAgentOrders,
+  getOrderIds,
 } = require("../database/repository/agentRepository");
 const { getAgent } = require("../database/repository/authRepository");
 
@@ -25,13 +26,13 @@ const addEntity = async (req, res) => {
   try {
     console.log("req.body", req.body);
 
-    const { _id, drawTime, date, tokenSets } = req.body;
+    const { _id, drawTime,orderId, date, tokenSets } = req.body;
 
     let user = await getAgent(_id);
     console.log("user", user);
 
     if (user) {
-      let result = await addAgentDataDB(_id, drawTime, date, tokenSets);
+      let result = await addAgentDataDB(_id, drawTime, date,orderId, tokenSets);
       console.log(result);
       res.status(200).json({ status: "success", result });
     } else {
@@ -85,4 +86,14 @@ const deleteEntityAgent = async (req, res) => {
   }
 };
 
-module.exports = { addEntity, listEntity,listOrder, deleteEntityAgent };
+const getOrders = async (req, res) => {
+  try {
+    const orderIds = await getOrderIds();
+    res.status(200).json({  orderIds });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { addEntity, listEntity,listOrder, deleteEntityAgent,getOrders };
