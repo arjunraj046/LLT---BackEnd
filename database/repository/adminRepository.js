@@ -113,23 +113,26 @@ const changeAgentStatusDB = async (id) => {
   }
 };
 
-const listEntityDB = async (tokenNumberr, dateFilterr, drawTime) => {
+const listEntityDB = async (tokenNumber, dateFilter, drawTime, username) => {
   try {
-    console.log("inn db", dateFilterr, drawTime);
-    let tokenNumber = parseInt(tokenNumberr);
+    console.log("in db", dateFilter, drawTime);
+    let tokenNumberInt = parseInt(tokenNumber);
 
     let matchStage = {};
 
-    if (tokenNumber) {
-      matchStage.tokenNumber = tokenNumber;
+    if (tokenNumberInt) {
+      matchStage['token.tokenNumber'] = tokenNumberInt;
     }
     if (drawTime) {
-      matchStage.drawTime = drawTime;
+      matchStage['drawTime'] = drawTime;
     }
-    if (dateFilterr) {
-      const startDate = new Date(`${dateFilterr}T00:00:00.000Z`);
-      const endDate = new Date(`${dateFilterr}T23:59:59.999Z`);
-      matchStage.date = { $gte: startDate, $lte: endDate };
+    if (dateFilter) {
+      const startDate = new Date(`${dateFilter}T00:00:00.000Z`);
+      const endDate = new Date(`${dateFilter}T23:59:59.999Z`);
+      matchStage['date'] = { $gte: startDate, $lte: endDate };
+    }
+    if (username) {
+      matchStage['username'] = username;
     }
 
     let aggregationPipeline = [
@@ -150,14 +153,10 @@ const listEntityDB = async (tokenNumberr, dateFilterr, drawTime) => {
         },
       },
       {
-        $unwind: {
-          path: "$token",
-        },
+        $unwind: "$token",
       },
       {
-        $unwind: {
-          path: "$user",
-        },
+        $unwind: "$user",
       },
       {
         $project: {

@@ -54,7 +54,7 @@ const listEntity = async (req, res) => {
       res.status(500).json({ error: error.message });
     }
 
-    res.status(200).json({ status: "success", listEntity });
+    res.status(200).json({ status: "success", listEntity:listEntity.data,total:listEntity.totalTokenCount });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

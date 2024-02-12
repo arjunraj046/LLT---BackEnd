@@ -51,7 +51,7 @@ const getAgentEntity = async (id) => {
     const list = await Order.aggregate([
       {
         $match: {
-          userId: new ObjectId(id),
+          userId: _id,
         },
       },
       {
@@ -73,7 +73,7 @@ const getAgentEntity = async (id) => {
           userId: 1,
           date: 1,
           drawTime: 1,
-          orderId:1,
+          orderId: 1,
           tokenId: "$token._id",
           tokenNumber: "$token.tokenNumber",
           tokenCount: "$token.count",
@@ -81,16 +81,31 @@ const getAgentEntity = async (id) => {
       },
     ]);
 
+    let totalTokenCount = 0;
+
+    if (list && list.length > 0) {
+      // Calculate totalTokenCount separately
+      totalTokenCount = list.reduce((sum, item) => sum + item.tokenCount, 0);
+    }
+
     if (!list || list.length === 0) {
       return null;
     } else {
-      return list;
+      return {
+        data: list,
+        totalTokenCount: totalTokenCount,
+      };
     }
   } catch (error) {
     console.error("Error fetching agent entities:", error);
     throw error;
   }
 };
+
+
+
+   
+ 
 
 const getAgentOrders = async (id) => {
   try {
