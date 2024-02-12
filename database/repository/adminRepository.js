@@ -502,17 +502,31 @@ const deleteUserDB = async (id) => {
     const _id = new mongoose.Types.ObjectId(id);
     console.log(_id);
 
-    // Add await here
-    const tickets = await UserData.deleteMany({ userId: _id });
-    console.log(tickets);
+    // Delete orders related to the user
+    const orders = await Order.find({ userId: _id });
+    console.log(orders);
 
+    if (Array.isArray(orders) && orders.length > 0) {
+      // Find orderIds from the deleted orders
+      const orderIds = orders.map(order => order._id);
+
+      // Delete tokens related to the orderIds
+      const tokens = await Token.deleteMany({ orderId: { $in: orderIds } });
+      console.log(tokens);
+    }
+
+    // Delete the user
     const deleteItem = await User.deleteOne({ _id });
+    console.log(deleteItem);
+
     return deleteItem;
   } catch (error) {
-    console.error("Error fetching agent entities:", error);
+    console.error("Error deleting user and related entries:", error);
     throw error;
   }
 };
+
+
 
 module.exports = {
   agentRegisterDB,
