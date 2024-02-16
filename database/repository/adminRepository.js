@@ -165,7 +165,7 @@ const listEntityDB = async (tokenNumber, dateFilter, drawTime, username) => {
           date: 1,
           drawTime: 1,
           tokenId: "$token._id",
-          tokenNumber: { $toInt: "$token.tokenNumber" },
+          tokenNumber: "$token.tokenNumber" ,
           tokenCount: "$token.count",
           userFullName: "$user.name",
           username: "$user.userName",
