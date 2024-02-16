@@ -116,7 +116,7 @@ const changeAgentStatusDB = async (id) => {
 const listEntityDB = async (tokenNumber, dateFilter, drawTime, username) => {
   try {
     console.log("in db", dateFilter, drawTime);
-    let tokenNumberInt = parseInt(tokenNumber);
+    let tokenNumberInt = tokenNumber;
 
     let matchStage = {};
 
