@@ -113,15 +113,15 @@ const changeAgentStatusDB = async (id) => {
   }
 };
 
-const listEntityDB = async (tokenNumber, dateFilter, drawTime, username) => {
+const listEntityDB = async (tokenNumberr, dateFilter, drawTime, username) => {
   try {
     console.log("in db", dateFilter, drawTime);
-    let tokenNumberInt = tokenNumber;
+    let tokenNumber = tokenNumberr;
 
     let matchStage = {};
 
-    if (tokenNumberInt) {
-      matchStage['token.tokenNumber'] = tokenNumberInt;
+    if (tokenNumber) {
+      matchStage.tokenNumber = tokenNumber;
     }
     if (drawTime) {
       matchStage['drawTime'] = drawTime;
@@ -285,7 +285,7 @@ const listOrderDB = async (tokenNumberr, dateFilterr, drawTime) => {
 
 const entityCumulativeDB = async (tokenNumberr, dateFilter, drawTime) => {
   try {
-    let tokenNumber = parseInt(tokenNumberr);
+    let tokenNumber = tokenNumberr;
 
     let matchStage = {};
 
@@ -326,7 +326,7 @@ const entityCumulativeDB = async (tokenNumberr, dateFilter, drawTime) => {
             },
           },
           orders: {
-            $push: "$order",
+            $addToSet: "$order", // Use $addToSet to avoid duplicates
           },
         },
       },
@@ -359,6 +359,7 @@ const entityCumulativeDB = async (tokenNumberr, dateFilter, drawTime) => {
     throw error;
   }
 };
+
 
 const rangeSetupDB = async (startRange, endRange, color) => {
   try {
