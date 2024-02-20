@@ -124,15 +124,15 @@ const listEntityDB = async (tokenNumberr, dateFilter, drawTime, username) => {
       matchStage.tokenNumber = tokenNumber;
     }
     if (drawTime) {
-      matchStage['drawTime'] = drawTime;
+      matchStage["drawTime"] = drawTime;
     }
     if (dateFilter) {
       const startDate = new Date(`${dateFilter}T00:00:00.000Z`);
       const endDate = new Date(`${dateFilter}T23:59:59.999Z`);
-      matchStage['date'] = { $gte: startDate, $lte: endDate };
+      matchStage["date"] = { $gte: startDate, $lte: endDate };
     }
     if (username) {
-      matchStage['username'] = username;
+      matchStage["username"] = username;
     }
 
     let aggregationPipeline = [
@@ -165,7 +165,7 @@ const listEntityDB = async (tokenNumberr, dateFilter, drawTime, username) => {
           date: 1,
           drawTime: 1,
           tokenId: "$token._id",
-          tokenNumber: "$token.tokenNumber" ,
+          tokenNumber: "$token.tokenNumber",
           tokenCount: "$token.count",
           userFullName: "$user.name",
           username: "$user.userName",
@@ -252,7 +252,7 @@ const listOrderDB = async (tokenNumberr, dateFilterr, drawTime) => {
           userId: 1,
           date: 1,
           drawTime: 1,
-          orderId:1,
+          orderId: 1,
           userFullName: "$user.name",
           username: "$user.userName",
           userEmail: "$user.email",
@@ -266,9 +266,9 @@ const listOrderDB = async (tokenNumberr, dateFilterr, drawTime) => {
       {
         $addFields: {
           total: {
-            $sum: "$token.count"
-          }
-        }
+            $sum: "$token.count",
+          },
+        },
       },
     ];
 
@@ -283,82 +283,78 @@ const listOrderDB = async (tokenNumberr, dateFilterr, drawTime) => {
   }
 };
 
-const entityCumulativeDB = async (tokenNumberr, dateFilter, drawTime) => {
-  try {
-    let tokenNumber = tokenNumberr;
+const getOrderIdsByDate = async (dateFilter) => {
+  const startDate = dateFilter ? new Date(`${dateFilter}T00:00:00.000Z`) : null;
+  const endDate = dateFilter ? new Date(`${dateFilter}T23:59:59.999Z`) : null;
 
-    let matchStage = {};
+  const orderIds = await Order.find({
+    date: {
+      $gte: startDate,
+      $lte: endDate,
+    },
+  }).distinct('_id');
 
-    if (tokenNumber) {
-      matchStage.tokenNumber = tokenNumber;
-    }
-    if (drawTime) {
-      matchStage.drawTime = drawTime;
-    }
-    if (dateFilter) {
-      const startDate = new Date(`${dateFilter}T00:00:00.000Z`);
-      const endDate = new Date(`${dateFilter}T23:59:59.999Z`);
-      matchStage.date = { $gte: startDate, $lte: endDate };
-    }
+  return orderIds;
+};
 
-    console.log("ms", matchStage);
-
-    const pipeline = [
-      {
-        $lookup: {
-          from: "orders",
-          localField: "orderId",
-          foreignField: "_id",
-          as: "order",
+ 
+  const entityCumulativeDB = async (tokenNumber, dateFilter) => {
+    try {
+      const orderIds = dateFilter ? await getOrderIdsByDate(dateFilter) : null;
+  
+      const matchStage = {};
+  
+      if (orderIds) {
+        matchStage.orderId = { $in: orderIds };
+      }
+  
+      if (tokenNumber) {
+        matchStage.tokenNumber = tokenNumber;
+      }
+  
+      const pipeline = [
+        {
+          $match: matchStage,
         },
-      },
-      {
-        $unwind: {
-          path: "$order",
-        },
-      },
-      {
-        $group: {
-          _id: "$tokenNumber",
-          total: {
-            $sum: {
-              $toInt: "$count",
+        {
+          $group: {
+            _id: '$tokenNumber',
+            total: {
+              $sum: '$count',
             },
           },
-          orders: {
-            $addToSet: "$order", // Use $addToSet to avoid duplicates
+        },
+        {
+          $addFields: {
+            tokenNumberInt: { $toInt: '$_id' }, // Convert tokenNumber to integer
           },
         },
-      },
-      {
-        $unwind: {
-          path: "$orders",
+        {
+          $sort: {
+            tokenNumberInt: 1, // Sort by the converted integer
+          },
         },
-      },
-      {
-        $project: {
-          tokenNumber: "$_id",
-          total: "$total",
-          date: "$orders.date",
-          drawtime: "$orders.drawtime",
+        {
+          $project: {
+            tokenNumber: '$_id',
+            total: 1,
+            _id: 0,
+          },
         },
-      },
-      {
-        $sort: {
-          tokenNumber: 1,
-        },
-      },
-      {
-        $match: matchStage,
-      },
-    ];
+      ];
+  
+      const results = await Token.aggregate(pipeline);
+      return results;
+    } catch (error) {
+      throw error;
+    }
+  };
+  
 
-    const results = await Token.aggregate(pipeline);
-    return results;
-  } catch (error) {
-    throw error;
-  }
-};
+// Example usage:
+// const result = await getCumulativeData('34', '2024-02-19');
+// or
+// const result = await getCumulativeData('34'); // without date filter
 
 
 const rangeSetupDB = async (startRange, endRange, color) => {
@@ -508,7 +504,7 @@ const deleteUserDB = async (id) => {
 
     if (Array.isArray(orders) && orders.length > 0) {
       // Find orderIds from the deleted orders
-      const orderIds = orders.map(order => order._id);
+      const orderIds = orders.map((order) => order._id);
 
       // Delete tokens related to the orderIds
       const tokens = await Token.deleteMany({ orderId: { $in: orderIds } });
@@ -525,8 +521,6 @@ const deleteUserDB = async (id) => {
     throw error;
   }
 };
-
-
 
 module.exports = {
   agentRegisterDB,
