@@ -521,6 +521,41 @@ const deleteUserDB = async (id) => {
     throw error;
   }
 };
+const addOrderDB = async (file, formData) => {
+  try {
+    // Perform any additional processing related to the file or formData if needed
+
+    // Assuming formData contains necessary fields like _id, drawTime, orderId, date, tokenSets
+    const { _id, drawTime, orderId, date, tokenSets } = formData;
+
+    const newOrder = new Order({
+      userId: new ObjectId(_id),
+      date: date,
+      drawTime: drawTime,
+      orderId: orderId,
+    });
+
+    console.log("newOrder is here", newOrder);
+
+    const savedOrder = await newOrder.save();
+
+    const tokenPromises = tokenSets.map(async (token) => {
+      const newToken = new Token({
+        tokenNumber: token.tokenNumber,
+        count: parseInt(token.count),
+        orderId: savedOrder._id,
+      });
+
+      return await newToken.save();
+    });
+
+    const savedTokens = await Promise.all(tokenPromises);
+
+    return { order: savedOrder, tokens: savedTokens };
+  } catch (error) {
+    throw error;
+  }
+};
 
 module.exports = {
   agentRegisterDB,
@@ -540,4 +575,5 @@ module.exports = {
   deleteDrawTimeDB,
   deleteColourSettingsDB,
   deleteUserDB,
+  addOrderDB
 };

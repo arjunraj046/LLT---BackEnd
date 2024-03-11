@@ -16,6 +16,7 @@ const {
   deleteColourSettingsDB,
   deleteUserDB,
   listOrderDB,
+  addOrderDB,
 } = require("../database/repository/adminRepository");
 const { passwordHashing, passwordComparing } = require("../services/hasinging");
 // const { getAgent } = require("../database/repository/authRepository");
@@ -156,7 +157,12 @@ const listEntitySearch = async (req, res) => {
     console.log("Username:", username); // New log for username
 
     // Call the function to fetch data from the database with tokenNumber, dateFilter, and username
-    const response = await listEntityDB(tokenNumber, dateFilter, drawTime, username);
+    const response = await listEntityDB(
+      tokenNumber,
+      dateFilter,
+      drawTime,
+      username
+    );
 
     if (response && response.length > 0) {
       const totalCount = response[0].totalCount;
@@ -179,7 +185,6 @@ const listEntitySearch = async (req, res) => {
   }
 };
 
-
 const listOrderSearch = async (req, res) => {
   try {
     const { tokenNumber, dateFilter, drawTime } = req.query;
@@ -192,10 +197,9 @@ const listOrderSearch = async (req, res) => {
     const response = await listOrderDB(tokenNumber, dateFilter, drawTime);
 
     if (response && response.length > 0) {
-    
       res.status(200).json({
         status: "success",
-        list: response
+        list: response,
       });
     } else {
       res.status(200).json({
@@ -316,6 +320,18 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const addOrder = async (req, res) => {
+  try {
+    const file = req.file;
+    const formData = req.body;
+    console.log("formData", formData);
+    const result = await addOrderDB(file, formData);
+    res.status(200).json({ status: "success", result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   agentRegister,
   agentList,
@@ -334,4 +350,5 @@ module.exports = {
   deleteDrawTime,
   deleteColourSettings,
   deleteUser,
+  addOrder,
 };

@@ -1,5 +1,7 @@
 const express = require("express");
 const adminRoute = express.Router();
+const multer = require('multer');
+const upload = multer();
 // const { adminAuthMiddleware } = require("../middleware/authMiddleware");
 const {
   agentRegister,
@@ -20,6 +22,7 @@ const {
   deleteColourSettings,
   deleteUser,
   listOrderSearch,
+  addOrder
 } = require("../controllers/adminController");
 
 adminRoute.get("/agent-list/:filter?/:pagenumber?", agentList);
@@ -40,5 +43,6 @@ adminRoute.post("/delete-draw-time", deleteDrawTime);
 adminRoute.post("/delete-user", deleteUser);
 adminRoute.post("/delete-colour-settings", deleteColourSettings);
 adminRoute.get("/list-entity-cumulative", entityCumulative);
+adminRoute.post("/add-order", upload.single('file'), addOrder);
 
 module.exports = adminRoute;
