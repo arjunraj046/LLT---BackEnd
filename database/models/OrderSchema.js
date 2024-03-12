@@ -19,6 +19,9 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  isImport:{
+    type:Number
+  }
 });
 
 const Order = mongoose.model("Order", orderSchema);

@@ -15,6 +15,9 @@ const tokenSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  isImport:{
+    type:Number
+  }
 });
 
 const Token = mongoose.model("Token", tokenSchema);

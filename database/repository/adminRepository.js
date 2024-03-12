@@ -521,29 +521,46 @@ const deleteUserDB = async (id) => {
     throw error;
   }
 };
+
+
+
 const addOrderDB = async (file, formData) => {
   try {
-    // Perform any additional processing related to the file or formData if needed
+    // Assuming formData contains necessary fields like _id, Count, Token: tokenArray
+    const { userId, Count, Token: tokenArray, date, drawTime,isImport } = formData;
 
-    // Assuming formData contains necessary fields like _id, drawTime, orderId, date, tokenSets
-    const { _id, drawTime, orderId, date, tokenSets } = formData;
+
+    // Dynamically generate orderId by incrementing the previous value
+    const lastOrder = await Order.findOne({}, {}, { sort: { 'orderId': -1 } });
+
+    let orderId;
+    if (lastOrder && lastOrder.orderId) {
+      const lastOrderNumber = parseInt(lastOrder.orderId.replace(/[^\d]/g, ''), 10);
+      orderId = `ORD${lastOrderNumber + 1}`;
+    } else {
+      orderId = 'ORD1';
+    }
 
     const newOrder = new Order({
-      userId: new ObjectId(_id),
-      date: date,
-      drawTime: drawTime,
+      userId: userId,
       orderId: orderId,
+      drawTime: drawTime, 
+      date: date,
+      isImport: 1,
+      
     });
 
+    console.log("After new Order creation");
     console.log("newOrder is here", newOrder);
 
     const savedOrder = await newOrder.save();
 
-    const tokenPromises = tokenSets.map(async (token) => {
+    const tokenPromises = tokenArray.map(async (token, index) => {
       const newToken = new Token({
-        tokenNumber: token.tokenNumber,
-        count: parseInt(token.count),
+        tokenNumber: token,
+        count: parseInt(Count[index]),
         orderId: savedOrder._id,
+        isImport: 1,
       });
 
       return await newToken.save();
@@ -556,6 +573,9 @@ const addOrderDB = async (file, formData) => {
     throw error;
   }
 };
+
+
+
 
 module.exports = {
   agentRegisterDB,
