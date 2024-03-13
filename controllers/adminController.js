@@ -215,14 +215,16 @@ const listOrderSearch = async (req, res) => {
 
 const entityCumulative = async (req, res) => {
   try {
-    const { tokenNumber, dateFilter, drawTime } = req.query;
+    const { tokenNumber, dateFilter, drawTime,isImport } = req.query;
 
     console.log("Token Number:", tokenNumber);
     console.log("Date Filter:", dateFilter);
+    console.log("isImported:", isImport);
     const response = await entityCumulativeDB(
       tokenNumber,
       dateFilter,
-      drawTime
+      drawTime,
+      isImport
     );
     // let totalCount = response[0].totalCount;
     // let data = response[0].data;

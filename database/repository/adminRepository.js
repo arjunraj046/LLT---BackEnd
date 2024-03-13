@@ -298,57 +298,62 @@ const getOrderIdsByDate = async (dateFilter) => {
 };
 
  
-  const entityCumulativeDB = async (tokenNumber, dateFilter) => {
-    try {
+const entityCumulativeDB = async (tokenNumber, dateFilter, drawTime, isImport) => {
+  try {
       const orderIds = dateFilter ? await getOrderIdsByDate(dateFilter) : null;
-  
+
       const matchStage = {};
-  
+console.log("isImport",isImport);
       if (orderIds) {
-        matchStage.orderId = { $in: orderIds };
+          matchStage.orderId = { $in: orderIds };
       }
-  
+
       if (tokenNumber) {
-        matchStage.tokenNumber = tokenNumber;
+          matchStage.tokenNumber = tokenNumber;
       }
-  
+
+      // if (isImport) {
+      //     matchStage.isImport = isImport;
+      // }
+
       const pipeline = [
-        {
-          $match: matchStage,
-        },
-        {
-          $group: {
-            _id: '$tokenNumber',
-            total: {
-              $sum: '$count',
-            },
+          {
+              $match: matchStage,
           },
-        },
-        {
-          $addFields: {
-            tokenNumberInt: { $toInt: '$_id' }, // Convert tokenNumber to integer
+          {
+              $group: {
+                  _id: '$tokenNumber',
+                  total: {
+                      $sum: '$count',
+                  },
+              },
           },
-        },
-        {
-          $sort: {
-            tokenNumberInt: 1, // Sort by the converted integer
+          {
+              $addFields: {
+                  tokenNumberInt: { $toInt: '$_id' }, // Convert tokenNumber to integer
+              },
           },
-        },
-        {
-          $project: {
-            tokenNumber: '$_id',
-            total: 1,
-            _id: 0,
+          {
+              $sort: {
+                  tokenNumberInt: 1, // Sort by the converted integer
+              },
           },
-        },
+          {
+              $project: {
+                  tokenNumber: '$_id',
+                  total: 1,
+                  _id: 0,
+              },
+          },
       ];
-  
+
       const results = await Token.aggregate(pipeline);
       return results;
-    } catch (error) {
+  } catch (error) {
       throw error;
-    }
-  };
+  }
+};
+
   
 
 // Example usage:
