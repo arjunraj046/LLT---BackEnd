@@ -149,19 +149,21 @@ const agentStatusChange = async (req, res) => {
 
 const listEntitySearch = async (req, res) => {
   try {
-    const { tokenNumber, dateFilter, drawTime, username } = req.query;
+    const { tokenNumber, dateFilter, drawTime, username,isImport } = req.query;
 
     console.log("Token Number:", tokenNumber);
     console.log("Date Filter:", dateFilter);
     console.log("drawTime:", drawTime);
     console.log("Username:", username); // New log for username
+    console.log("isImport:", isImport); 
 
     // Call the function to fetch data from the database with tokenNumber, dateFilter, and username
     const response = await listEntityDB(
       tokenNumber,
       dateFilter,
       drawTime,
-      username
+      username,
+      isImport
     );
 
     if (response && response.length > 0) {
@@ -187,14 +189,15 @@ const listEntitySearch = async (req, res) => {
 
 const listOrderSearch = async (req, res) => {
   try {
-    const { tokenNumber, dateFilter, drawTime } = req.query;
+    const { tokenNumber, dateFilter, drawTime,isImport } = req.query;
 
     console.log("Token Number:", tokenNumber);
     console.log("Date Filter:", dateFilter);
     console.log("drawTime:", drawTime);
+    console.log("isImport:",isImport);
 
     // Call the function to fetch data from the database with tokenNumber and dateFilter
-    const response = await listOrderDB(tokenNumber, dateFilter, drawTime);
+    const response = await listOrderDB(tokenNumber, dateFilter, drawTime,isImport);
 
     if (response && response.length > 0) {
       res.status(200).json({

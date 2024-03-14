@@ -113,9 +113,9 @@ const changeAgentStatusDB = async (id) => {
   }
 };
 
-const listEntityDB = async (tokenNumberr, dateFilter, drawTime, username) => {
+const listEntityDB = async (tokenNumberr, dateFilter, drawTime, username, isImport) => {
   try {
-    console.log("in db", dateFilter, drawTime);
+    console.log("in db", dateFilter, drawTime, isImport);
     let tokenNumber = tokenNumberr;
 
     let matchStage = {};
@@ -135,6 +135,10 @@ const listEntityDB = async (tokenNumberr, dateFilter, drawTime, username) => {
       matchStage["username"] = username;
     }
 
+    if (isImport !== undefined) {
+      matchStage["isImport"] = parseInt(isImport); // Add condition for isImport
+    }
+    console.log("matchStage:", matchStage); 
     let aggregationPipeline = [
       {
         $lookup: {
@@ -171,6 +175,7 @@ const listEntityDB = async (tokenNumberr, dateFilter, drawTime, username) => {
           username: "$user.userName",
           userEmail: "$user.email",
           userContactNumber: "$user.contactNumber",
+          isImport: "$token.isImport"
         },
       },
       {
@@ -190,7 +195,7 @@ const listEntityDB = async (tokenNumberr, dateFilter, drawTime, username) => {
         },
       },
     ];
-
+    console.log("aggregationPipeline:", aggregationPipeline);
     const list = await Order.aggregate(aggregationPipeline);
 
     console.log(list);
@@ -202,9 +207,9 @@ const listEntityDB = async (tokenNumberr, dateFilter, drawTime, username) => {
   }
 };
 
-const listOrderDB = async (tokenNumberr, dateFilterr, drawTime) => {
+const listOrderDB = async (tokenNumberr, dateFilterr, drawTime,isImport) => {
   try {
-    console.log("inn db", dateFilterr, drawTime);
+    console.log("inn db", dateFilterr, drawTime,isImport);
     let tokenNumber = parseInt(tokenNumberr);
 
     let matchStage = {};
@@ -223,7 +228,9 @@ const listOrderDB = async (tokenNumberr, dateFilterr, drawTime) => {
     if (drawTime) {
       matchStage.drawTime = drawTime;
     }
-
+    if (isImport !== undefined) {
+      matchStage["isImport"] = parseInt(isImport); // Add condition for isImport
+    }
     let aggregationPipeline = [
       {
         $lookup: {
@@ -258,6 +265,7 @@ const listOrderDB = async (tokenNumberr, dateFilterr, drawTime) => {
           userEmail: "$user.email",
           userContactNumber: "$user.contactNumber",
           token: 1,
+          isImport:"$isImport"
         },
       },
       {
@@ -292,75 +300,78 @@ const getOrderIdsByDate = async (dateFilter) => {
       $gte: startDate,
       $lte: endDate,
     },
-  }).distinct('_id');
+  }).distinct("_id");
 
   return orderIds;
 };
 
- 
-const entityCumulativeDB = async (tokenNumber, dateFilter, drawTime, isImport) => {
+const entityCumulativeDB = async (
+  tokenNumber,
+  dateFilter,
+  drawTime,
+  isImport
+) => {
   try {
-      const orderIds = dateFilter ? await getOrderIdsByDate(dateFilter) : null;
+    const orderIds = dateFilter ? await getOrderIdsByDate(dateFilter) : null;
 
-      const matchStage = {};
-console.log("isImport",isImport);
-      if (orderIds) {
-          matchStage.orderId = { $in: orderIds };
-      }
+    const matchStage = {};
+    console.log("isImport", isImport);
+    if (orderIds) {
+      matchStage.orderId = { $in: orderIds };
+    }
 
-      if (tokenNumber) {
-          matchStage.tokenNumber = tokenNumber;
-      }
+    if (tokenNumber) {
+      matchStage.tokenNumber = tokenNumber;
+    }
 
-      // if (isImport) {
-      //     matchStage.isImport = isImport;
-      // }
+    if (isImport !== undefined) {
+      matchStage["isImport"] = parseInt(isImport); // Add condition for isImport
+    }
+    console.log("matchStage:", matchStage); 
 
-      const pipeline = [
-          {
-              $match: matchStage,
+    const pipeline = [
+      {
+        $match: matchStage,
+      },
+      {
+        $group: {
+          _id: "$tokenNumber",
+          total: {
+            $sum: "$count",
           },
-          {
-              $group: {
-                  _id: '$tokenNumber',
-                  total: {
-                      $sum: '$count',
-                  },
-              },
-          },
-          {
-              $addFields: {
-                  tokenNumberInt: { $toInt: '$_id' }, // Convert tokenNumber to integer
-              },
-          },
-          {
-              $sort: {
-                  tokenNumberInt: 1, // Sort by the converted integer
-              },
-          },
-          {
-              $project: {
-                  tokenNumber: '$_id',
-                  total: 1,
-                  _id: 0,
-              },
-          },
-      ];
-
-      const results = await Token.aggregate(pipeline);
-      return results;
+        },
+      },
+      {
+        $addFields: {
+          tokenNumberInt: { $toInt: "$_id" }, // Convert tokenNumber to integer
+        },
+      },
+      {
+        $sort: {
+          tokenNumberInt: 1, // Sort by the converted integer
+        },
+      },
+      {
+        $project: {
+          tokenNumber: "$_id",
+          total: 1,
+          _id: 0,
+          isImport: "$isImport"
+        },
+      },
+    ];
+    console.log("aggregationPipeline:", pipeline);
+    const results = await Token.aggregate(pipeline);
+    return results;
   } catch (error) {
-      throw error;
+    throw error;
   }
 };
-
-  
 
 // Example usage:
 // const result = await getCumulativeData('34', '2024-02-19');
 // or
 // const result = await getCumulativeData('34'); // without date filter
-
 
 const rangeSetupDB = async (startRange, endRange, color) => {
   try {
@@ -527,32 +538,38 @@ const deleteUserDB = async (id) => {
   }
 };
 
-
-
 const addOrderDB = async (file, formData) => {
   try {
     // Assuming formData contains necessary fields like _id, Count, Token: tokenArray
-    const { userId, Count, Token: tokenArray, date, drawTime,isImport } = formData;
-
+    const {
+      userId,
+      Count,
+      Token: tokenArray,
+      date,
+      drawTime,
+      isImport,
+    } = formData;
 
     // Dynamically generate orderId by incrementing the previous value
-    const lastOrder = await Order.findOne({}, {}, { sort: { 'orderId': -1 } });
+    const lastOrder = await Order.findOne({}, {}, { sort: { orderId: -1 } });
 
     let orderId;
     if (lastOrder && lastOrder.orderId) {
-      const lastOrderNumber = parseInt(lastOrder.orderId.replace(/[^\d]/g, ''), 10);
+      const lastOrderNumber = parseInt(
+        lastOrder.orderId.replace(/[^\d]/g, ""),
+        10
+      );
       orderId = `ORD${lastOrderNumber + 1}`;
     } else {
-      orderId = 'ORD1';
+      orderId = "ORD1";
     }
 
     const newOrder = new Order({
       userId: userId,
       orderId: orderId,
-      drawTime: drawTime, 
+      drawTime: drawTime,
       date: date,
       isImport: 1,
-      
     });
 
     console.log("After new Order creation");
@@ -579,9 +596,6 @@ const addOrderDB = async (file, formData) => {
   }
 };
 
-
-
-
 module.exports = {
   agentRegisterDB,
   listAgentsDB,
@@ -600,5 +614,5 @@ module.exports = {
   deleteDrawTimeDB,
   deleteColourSettingsDB,
   deleteUserDB,
-  addOrderDB
+  addOrderDB,
 };

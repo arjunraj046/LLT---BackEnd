@@ -10,6 +10,7 @@ const addAgentDataDB = async (userId, drawTime, date, orderId, tokenList) => {
       date: date,
       drawTime: drawTime,
       orderId: orderId, 
+      isImport:0
     });
 
     console.log("newOrder is here", newOrder);
@@ -24,6 +25,7 @@ const addAgentDataDB = async (userId, drawTime, date, orderId, tokenList) => {
             tokenNumber: token.tokenNumber,
             count: parseInt(token.count),
             orderId: res._id,
+            isImport:0
           });
 
           return await newToken.save();
